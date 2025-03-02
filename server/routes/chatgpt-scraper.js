@@ -76,63 +76,126 @@ router.post('/process-chatgpt', async (req, res) => {
     }
     
     // Wait for page content to load and stabilize
-    // Replace waitForTimeout with standard setTimeout
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
     // Get the page HTML for further processing
     const html = await page.content();
     
     console.log('Page content retrieved, attempting to extract conversation');
     
-    // Try various selectors to find the conversation content
+    // Extract the conversation content using various methods
     let conversationContent = '';
     
-    // First try the standard ChatGPT selectors
+    // Method 1: Extract using page evaluation with deep element access
     try {
-      // Try to find all message content
-      const messages = await page.$$eval(
-        '.markdown-content, .text-message, .prose, [data-message-content], .text-base',
-        elements => elements.map(el => el.innerText.trim())
-      );
+      // Use JavaScript in the browser context to extract text from nested elements
+      conversationContent = await page.evaluate(() => {
+        // Function to recursively get text from an element and its children
+        const getElementText = (element) => {
+          if (!element) return '';
+          
+          let text = '';
+          // Get text from this element
+          if (element.nodeType === Node.TEXT_NODE) {
+            text += element.textContent.trim() + ' ';
+          } 
+          // Process child nodes
+          else if (element.childNodes && element.childNodes.length > 0) {
+            for (const child of element.childNodes) {
+              text += getElementText(child);
+            }
+          }
+          return text;
+        };
+        
+        // Find user and assistant messages
+        const messagePairs = [];
+        const articles = document.querySelectorAll('article');
+        
+        articles.forEach(article => {
+          const role = article.querySelector('[data-message-author-role]')?.getAttribute('data-message-author-role');
+          if (!role) return;
+          
+          // Get all paragraph elements and extract their text
+          const paragraphs = article.querySelectorAll('[data-start]');
+          let messageText = '';
+          
+          if (paragraphs && paragraphs.length > 0) {
+            paragraphs.forEach(p => {
+              messageText += p.textContent.trim() + '\n';
+            });
+          } else {
+            // Fallback to all text if no data-start elements
+            messageText = getElementText(article);
+          }
+          
+          // Add formatted message
+          if (messageText.trim()) {
+            messagePairs.push(`${role === 'user' ? 'User' : 'Assistant'}: ${messageText.trim()}`);
+          }
+        });
+        
+        return messagePairs.join('\n\n');
+      });
       
-      conversationContent = messages.join('\n\n');
-      console.log(`Found ${messages.length} messages using standard selectors`);
-    } catch (selectorError) {
-      console.error('Error with standard selectors:', selectorError);
+      console.log(`Extracted conversation using browser evaluation: ${conversationContent.length} characters`);
+    } catch (evalError) {
+      console.error('Error with browser evaluation:', evalError);
     }
     
-    // If standard selectors fail, try a more general approach
-    if (!conversationContent.trim()) {
-      console.log('Standard selectors failed, trying alternative approach');
+    // Method 2: If above method fails, try using cheerio
+    if (!conversationContent || conversationContent.length < 100) {
+      console.log('Browser evaluation failed or returned minimal content, trying cheerio');
       
-      // Use cheerio to parse the HTML for more flexible extraction
       const $ = cheerio.load(html);
+      const messages = [];
       
-      // Look for various potential selectors
-      $('[class*="message"], [class*="content"], [class*="markdown"], [class*="prose"]').each((i, el) => {
-        const text = $(el).text().trim();
-        if (text.length > 100) { // Likely a content block if it has substantial text
-          conversationContent += text + '\n\n';
+      // Extract text from data-start elements
+      $('article').each((i, article) => {
+        const roleElement = $(article).find('[data-message-author-role]');
+        const role = roleElement.attr('data-message-author-role');
+        
+        if (!role) return;
+        
+        let messageText = '';
+        
+        // Try to find paragraphs with data-start attributes
+        const paragraphs = $(article).find('[data-start]');
+        
+        if (paragraphs.length > 0) {
+          paragraphs.each((j, para) => {
+            messageText += $(para).text().trim() + '\n';
+          });
+        } else {
+          // Fallback to collecting all text
+          messageText = $(article).text().trim();
+        }
+        
+        if (messageText.trim()) {
+          messages.push(`${role === 'user' ? 'User' : 'Assistant'}: ${messageText.trim()}`);
         }
       });
       
-      console.log('Used alternative extraction approach');
+      conversationContent = messages.join('\n\n');
+      console.log(`Extracted conversation using cheerio: ${conversationContent.length} characters`);
     }
     
-    // Last resort: capture all paragraph text
-    if (!conversationContent.trim()) {
-      console.log('All selective approaches failed, capturing all paragraph text');
+    // Method 3: Last resort - try directly with wider selectors
+    if (!conversationContent || conversationContent.length < 100) {
+      console.log('Cheerio extraction failed, trying wider selectors');
       
       try {
-        const paragraphs = await page.$$eval('p, div, span', 
+        // Get all text from paragraphs
+        const paragraphs = await page.$$eval('p, [data-start], .prose, .markdown', 
           elements => elements
-            .filter(el => el.innerText && el.innerText.trim().length > 50)
-            .map(el => el.innerText.trim())
+            .filter(el => el.textContent && el.textContent.trim().length > 20)
+            .map(el => el.textContent.trim())
         );
         
         conversationContent = paragraphs.join('\n\n');
-      } catch (fallbackError) {
-        console.error('Error with fallback approach:', fallbackError);
+        console.log(`Extracted ${paragraphs.length} paragraphs using wide selectors`);
+      } catch (wideError) {
+        console.error('Error with wide selectors:', wideError);
       }
     }
     
@@ -228,7 +291,13 @@ function extractCovidOrders(text) {
     /(?:State of Emergency|Emergency Declaration|Emergency Order)[^.]*\./gi,
     
     // COVID-specific language
-    /(?:COVID-19|coronavirus) (?:restriction|requirement|mandate|order|directive)[^.]*\./gi
+    /(?:COVID-19|coronavirus) (?:restriction|requirement|mandate|order|directive)[^.]*\./gi,
+    
+    // Blueprint or reopening language
+    /(?:Blueprint|Reopening|Tier)[^.]*(?:COVID|coronavirus|pandemic|restriction)[^.]*\./gi,
+    
+    // Q3 specific mentions
+    /Q3 2020[^.]*(?:COVID|coronavirus|pandemic|restriction)[^.]*\./gi
   ];
   
   const orders = [];
@@ -264,6 +333,17 @@ function extractCovidOrders(text) {
       }
     }
   });
+  
+  // If no specific orders found, look for paragraphs mentioning Q3 2020
+  if (orders.length === 0) {
+    paragraphs.forEach(paragraph => {
+      if (paragraph.length > 100 && 
+          paragraph.includes('Q3 2020') && 
+          /(?:COVID|coronavirus|pandemic|emergency|closure|restriction)/i.test(paragraph)) {
+        orders.push(paragraph);
+      }
+    });
+  }
   
   // Deduplicate and limit to most relevant orders
   const uniqueOrders = [...new Set(orders)];

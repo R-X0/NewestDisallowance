@@ -1,0 +1,7 @@
+User: You said: Please provide all state, city, and county COVID-related government orders, proclamations, and public health orders in place during 2020-2021 that would affect a "business" business located in Camarillo, California. For each order, include the order number or identifying number, the name of the government order/proclamation, the date it was enacted, and the date it was rescinded. If rescinded by subsequent orders, list subsequent order and dates. Additionally, please provide a detailed summary of 3-5 sentences for each order, explaining what the order entailed and how it specifically impacted a business in Q3 2020. Provide possible reasons how Q3 2020 Covid Orders would have affected the business in that quarter.
+
+Assistant: ChatGPT said:
+
+User: You said: you figure it out
+
+Assistant: ChatGPT said:
