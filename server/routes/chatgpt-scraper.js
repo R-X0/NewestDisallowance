@@ -76,7 +76,8 @@ router.post('/process-chatgpt', async (req, res) => {
     }
     
     // Wait for page content to load and stabilize
-    await page.waitForTimeout(2000);
+    // Replace waitForTimeout with standard setTimeout
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
     // Get the page HTML for further processing
     const html = await page.content();
