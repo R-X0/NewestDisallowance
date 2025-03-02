@@ -44,8 +44,6 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 // API routes
 app.use('/api/erc-protest', ercProtestRouter);
 app.use('/api/erc-protest/admin', authenticateUser, adminOnly, adminRouter);
-
-// Mount the ChatGPT scraper router explicitly
 app.use('/api/erc-protest/chatgpt', chatgptScraperRouter);
 
 // Debug route to check if the server is working

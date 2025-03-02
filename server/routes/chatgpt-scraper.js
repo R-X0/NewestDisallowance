@@ -31,7 +31,7 @@ router.post('/process-chatgpt', async (req, res) => {
     const requestId = uuidv4().substring(0, 8);
     
     // Create directory for any downloaded attachments
-    const outputDir = path.join(__dirname, `../data/ChatGPT_Conversations/${requestId}`);
+    const outputDir = path.join(__dirname, `../../data/ChatGPT_Conversations/${requestId}`);
     await fs.mkdir(outputDir, { recursive: true });
     
     // Launch browser to scrape ChatGPT conversation
