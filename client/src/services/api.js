@@ -57,7 +57,8 @@ export const generateERCProtestLetter = async (letterData) => {
           'Content-Type': 'application/json'
         },
         // Increase timeout for the scraping process which may take time
-        timeout: 120000 // 2 minutes
+        // This is extra important now that we're generating PDFs for each link
+        timeout: 300000 // 5 minutes
       }
     );
     
@@ -75,7 +76,7 @@ export const generateERCProtestLetter = async (letterData) => {
     } else if (error.request) {
       // The request was made but no response was received
       console.error('No response received from server:', error.request);
-      throw new Error('No response received from server. Is the server running?');
+      throw new Error('No response received from server. The process might be taking longer than expected due to PDF generation. Try again or check with administrator.');
     } else {
       // Something happened in setting up the request that triggered an Error
       console.error('Error setting up request:', error.message);

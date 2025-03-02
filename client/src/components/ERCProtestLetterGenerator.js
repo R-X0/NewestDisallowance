@@ -5,7 +5,7 @@ import {
   DialogContent, DialogActions, LinearProgress,
   FormControlLabel, Switch
 } from '@mui/material';
-import { ContentCopy, CheckCircle, Description, Link } from '@mui/icons-material';
+import { ContentCopy, CheckCircle, Description, Link, FileDownload } from '@mui/icons-material';
 import { generateERCProtestLetter } from '../services/api';
 
 // Utility function to map NAICS code to business type
@@ -39,6 +39,7 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
   const [processing, setProcessing] = useState(false);
   const [processingMessage, setProcessingMessage] = useState('');
   const [processingStep, setProcessingStep] = useState(0);
+  const [packageData, setPackageData] = useState(null);
 
   // Function to generate protest letter using our LLM API
   const generateProtestLetter = async () => {
@@ -46,6 +47,7 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
     setError(null);
     setProcessing(true);
     setProcessingStep(0);
+    setPackageData(null);
     
     try {
       // Get business type based on NAICS code
@@ -77,9 +79,23 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
       setProcessingStep(3);
       
       await new Promise(resolve => setTimeout(resolve, 1000));
+      setProcessingMessage('Converting referenced links to PDF attachments...');
+      setProcessingStep(4);
+      
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setProcessingMessage('Creating complete protest package...');
+      setProcessingStep(5);
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       if (response.success) {
         setProtestLetter(response.letter);
+        setPackageData({
+          pdfPath: response.pdfPath,
+          zipPath: response.zipPath,
+          attachments: response.attachments || [],
+          packageFilename: response.packageFilename || 'complete_protest_package.zip'
+        });
         setDialogOpen(true);
         setProcessing(false);
       } else {
@@ -116,6 +132,13 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
       link.includes('chat.openai.com') ||
       link.includes('chatgpt.com')
     );
+  };
+
+  const downloadProtestPackage = () => {
+    if (packageData && packageData.zipPath) {
+      // Create a download link
+      window.open(`/api/erc-protest/admin/download?path=${packageData.zipPath}`, '_blank');
+    }
   };
   
   return (
@@ -165,9 +188,9 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
             startIcon={<Description />}
             onClick={generateProtestLetter}
             disabled={generating || !chatGptLink || !validateChatGptLink(chatGptLink)}
-            sx={{ minWidth: 200 }}
+            sx={{ minWidth: 240 }}
           >
-            {generating ? 'Generating...' : 'Generate Protest Letter'}
+            {generating ? 'Generating...' : 'Generate Complete Protest Package'}
           </Button>
         </Box>
         
@@ -178,11 +201,11 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
             </Typography>
             <LinearProgress 
               variant="determinate" 
-              value={processingStep * 25} 
+              value={(processingStep * 100) / 5} 
               sx={{ mt: 1, mb: 2 }}
             />
             <Typography variant="caption" align="center" display="block" color="text.secondary">
-              This process may take 1-2 minutes as we need to extract and analyze your ChatGPT conversation.
+              This process may take 2-3 minutes to extract data from ChatGPT, generate the letter, and create PDFs of all referenced sources.
             </Typography>
           </Box>
         )}
@@ -202,7 +225,7 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
           }}
         >
           <DialogTitle>
-            ERC Protest Letter
+            ERC Protest Package
             <IconButton
               aria-label="copy"
               onClick={copyToClipboard}
@@ -212,6 +235,57 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
             </IconButton>
           </DialogTitle>
           <DialogContent dividers sx={{ flexGrow: 1, overflow: 'auto' }}>
+            {packageData && (
+              <Box mb={3}>
+                <Alert severity="success" sx={{ mb: 2 }}>
+                  <Typography variant="subtitle1">
+                    Complete protest package generated successfully!
+                  </Typography>
+                  <Typography variant="body2">
+                    Your package includes the protest letter and {packageData.attachments.length} PDF attachments 
+                    of the referenced sources. You can download the complete package below.
+                  </Typography>
+                </Alert>
+                
+                <Box display="flex" justifyContent="center" mt={2} mb={3}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<FileDownload />}
+                    onClick={downloadProtestPackage}
+                    sx={{ minWidth: 240 }}
+                  >
+                    Download Complete Protest Package
+                  </Button>
+                </Box>
+                
+                {packageData.attachments.length > 0 && (
+                  <Box mt={3} mb={2}>
+                    <Typography variant="subtitle1" gutterBottom>
+                      Attachments Created:
+                    </Typography>
+                    <Paper variant="outlined" sx={{ p: 2 }}>
+                      <ol>
+                        {packageData.attachments.map((attachment, index) => (
+                          <li key={index}>
+                            <Typography variant="body2">
+                              {attachment.filename} 
+                              <Typography variant="caption" component="span" color="text.secondary" sx={{ ml: 1 }}>
+                                (from {attachment.originalUrl})
+                              </Typography>
+                            </Typography>
+                          </li>
+                        ))}
+                      </ol>
+                    </Paper>
+                  </Box>
+                )}
+              </Box>
+            )}
+            
+            <Typography variant="subtitle1" gutterBottom>
+              Protest Letter Preview:
+            </Typography>
             <TextField
               fullWidth
               multiline
@@ -221,19 +295,24 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
                 readOnly: true,
                 sx: { 
                   fontFamily: 'monospace', 
-                  fontSize: '0.9rem',
-                  height: '100%',
-                  '& .MuiInputBase-input': {
-                    height: '100%'
-                  }
+                  fontSize: '0.9rem'
                 }
               }}
-              sx={{ height: '100%' }}
+              minRows={15}
+              maxRows={30}
             />
           </DialogContent>
           <DialogActions>
             <Button onClick={copyToClipboard} startIcon={copied ? <CheckCircle /> : <ContentCopy />}>
               {copied ? 'Copied!' : 'Copy to Clipboard'}
+            </Button>
+            <Button 
+              onClick={downloadProtestPackage} 
+              variant="contained" 
+              color="primary"
+              startIcon={<FileDownload />}
+            >
+              Download Package
             </Button>
             <Button onClick={handleCloseDialog}>Close</Button>
           </DialogActions>

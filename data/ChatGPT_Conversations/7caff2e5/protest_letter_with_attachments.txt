@@ -1,0 +1,78 @@
+03/02/2025  
+Internal Revenue Service  
+Ogden, UT 84201  
+
+EIN: 2342  
+Taxpayer Name: 34  
+RE: Formal Protest to Letter 105 – ERC Disallowance for Q4 2020  
+Tax Period: 4th Quarter 2020 (202010)  
+Claim Amount: [Insert Claim Amount]
+
+Dear Appeals Officer,
+
+We write in response to the IRS notice disallowing 34’s Employee Retention Credit (ERC) claim for the fourth quarter of 2020. The disallowance was premised on the assertion that no government orders were in effect during the period that caused a suspension of our operations. We respectfully disagree. Multiple federal, state, county, and city COVID-19–related orders were active in Q4 2020 and directly imposed restrictions that significantly curtailed our normal business operations in Camarillo, California. In this letter, we detail the timeline of relevant government orders, discuss their operational impact on our business, and cite applicable authority demonstrating that 34 qualifies for the ERC under the “partial suspension” provisions.
+
+Timeline of COVID-19 Government Orders Active in Q4 2020
+
+Even as some restrictions eased in earlier quarters, by Q4 2020 a complex regulatory framework remained in force that affected our business operations. Below is a chronological summary of key government orders and their impact:
+
+─────────────────────────────────────────────  
+Order: U.S. National Emergency Concerning COVID-19  
+Date Enacted: March 13, 2020  
+Date Rescinded: Not formally rescinded during 2020–2021  
+Link: [See Attachment 1: attachment_1_https___bidenwhitehouse_archiv.pdf]  
+Operational Impact: Although it did not directly order the closure of businesses, the national emergency declaration provided the legal framework under which subsequent state and local restrictions were imposed. This contextual backdrop raised the level of federal intervention, ultimately contributing to the curtailment of normal business activities.  
+
+Order: California State of Emergency Proclamation  
+Date Enacted: March 4, 2020  
+Date Rescinded: Remained active through 2020–2021 (ended February 28, 2023)  
+Link: [See Attachment 2: attachment_2_https___www_gov_ca_gov_2020_03.pdf]  
+Operational Impact: Governor Newsom’s declaration mobilized state resources and paved the way for subsequent stay-at-home and business limitation orders. In Q4 2020, the state emergency status underpinned many of the continuing restrictions that reduced our operating capacity.  
+
+Order: Executive Order N‑33‑20 – Statewide “Stay‑at‑Home” Order  
+Date Enacted: March 19, 2020 (effective immediately)  
+Date Rescinded: June 15, 2021 (rescinded by EO N‑07‑21)  
+Link: [See Attachment 3: attachment_3_https___www_gov_ca_gov_wp_cont.pdf]  
+Operational Impact: This statewide order forced non‑essential businesses to close or drastically limit operations. Though by Q4 2020 some sectors had attempted limited reopening under strict conditions, the lingering effects—such as capacity restrictions and limited indoor activities—continued to inhibit our ability to operate normally.
+
+Order: “Blueprint for a Safer Economy” Framework  
+Date Enacted: Announced August 28, 2020; effective August 31, 2020  
+Date Rescinded: June 15, 2021  
+Link: [See Attachment 4: attachment_4_https___www_gov_ca_gov_2020_08.pdf]  
+Operational Impact: Under this risk-based tier system, Ventura County (which includes Camarillo) was assigned the most restrictive Purple tier for much of Q3 2020 and continued to influence conditions into Q4 2020. This framework mandated severe limitations on indoor operations and capacity, directly reducing the number of customers and revenue opportunities available to our business.
+
+Order: Regional Stay‑at‑Home Order (Based on ICU Capacity)  
+Date Enacted: Announced December 3, 2020; effective December 6, 2020  
+Date Rescinded: January 25, 2021  
+Operational Impact: Although formally triggered in December 2020, this order reflected accumulated COVID‑19 risks and forced additional sectors to close or operate at reduced capacity. Its implementation in Q4 2020 further limited our ability to conduct in‑person transactions, adding to an overall pattern of intermittent operational suspension.
+
+Order: Ventura County “Red Tier” Reopening Order  
+Date Enacted: October 6, 2020  
+Date Rescinded: Superseded by subsequent state orders in December 2020 and later fully lifted in June 2021  
+Operational Impact: As Ventura County shifted tiers, select indoor operations were cautiously reopened; however, many establishments continued to operate under stringent capacity and safety limitations. For our business, this meant that while some activities were permitted, overall operations remained severely constrained by health mandates.
+
+Order: Camarillo Local Emergency Proclamation and Eviction Moratorium  
+Date Enacted: March 13, 2020 (continued through 2020–2021)  
+Operational Impact: The City of Camarillo’s declaration and associated orders (e.g., Camarillo Eviction Moratorium and Resolution No. 2020‑63 for temporary outdoor dining) were designed to mitigate the economic impact of COVID‑19. While some measures provided limited relief, they also underscored the extent of local governmental intervention. For our business, adjustments had to be made rapidly—shifting from normal operations to curbside or outdoor services when indoor operations were mandated to be restricted.
+
+─────────────────────────────────────────────  
+
+As demonstrated above, the overlapping federal, state, county, and city COVID‑19 orders imposed significant and ongoing restrictions on 34’s operations in Camarillo, California during Q4 2020. These restrictions—from broad capacity limits and enforced modifications in service delivery to the intermittent closure of key business functions—resulted in a partial suspension of normal business activities. In accordance with IRS guidance (including IRS Notice 2021‑20, with the principles of a “partial suspension” as further reinforced in later notices), the adverse impact on our operations exceeds a nominal threshold, thereby qualifying 34 for the ERC under the partial suspension provisions.
+
+Conclusion and Request
+
+In light of the above facts and supporting authorities, we respectfully request that the IRS reconsider and reverse the disallowance of our Q4 2020 ERC. The government orders detailed herein directly imposed restrictions on our business that significantly curtailed our normal operations during the period, fulfilling the partial suspension criteria established under applicable IRS guidance. We have enclosed documentation of the specific orders—including links to official announcements (e.g., the Governor’s State of Emergency, the EO N‑33‑20 order, and the Blueprint framework)—and an analysis evidencing the impact on our operating capacity.
+
+Attestation: “Under penalties of perjury, I declare that I submitted the protest and accompanying documents, and to the best of my personal knowledge and belief, the information stated in the protest and accompanying documents is true, correct, and complete.”
+
+Sincerely,
+
+[Signature]
+
+______________________________  
+Authorized Representative for 34
+
+Enclosures:  
+• Copies of COVID‑19 Government Orders and Relevant Excerpts  
+• Analysis of Operational Impact for Q4 2020  
+• IRS Notices and Guidance (including Notices 2021‑20 and related references)

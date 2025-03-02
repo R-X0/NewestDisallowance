@@ -7,6 +7,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const cheerio = require('cheerio');
+const AdmZip = require('adm-zip');
 
 // For openai@4.x+ in CommonJS, use default import:
 const OpenAI = require('openai').default;
@@ -65,6 +66,147 @@ ${rawHtml}`
       // Last resort: return raw HTML with tags stripped out
       return rawHtml.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || '';
     }
+  }
+}
+
+/**
+ * Extract URLs from the letter and download them as PDFs
+ */
+async function extractAndDownloadUrls(letter, outputDir) {
+  // Regular expression to match URLs in the letter
+  const urlRegex = /(https?:\/\/[^\s\)]+)/g;
+  const urls = [...new Set(letter.match(urlRegex) || [])];
+  const attachments = [];
+  
+  console.log(`Found ${urls.length} unique URLs to process`);
+  
+  if (urls.length === 0) return { letter, attachments };
+  
+  // Launch browser for downloading
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+  });
+  
+  try {
+    for (let i = 0; i < urls.length; i++) {
+      const url = urls[i];
+      const filename = `attachment_${i+1}_${url.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30)}.pdf`;
+      const pdfPath = path.join(outputDir, filename);
+      
+      console.log(`Processing URL (${i+1}/${urls.length}): ${url}`);
+      
+      // Create new page for each URL
+      const page = await browser.newPage();
+      try {
+        // Set a longer timeout and try to wait for network idle
+        await page.setDefaultNavigationTimeout(60000);
+        
+        // Block images and other non-essential resources for faster loading
+        await page.setRequestInterception(true);
+        page.on('request', (request) => {
+          const resourceType = request.resourceType();
+          if (['image', 'font', 'media'].includes(resourceType)) {
+            request.abort();
+          } else {
+            request.continue();
+          }
+        });
+        
+        await page.goto(url, { 
+          waitUntil: 'networkidle2', 
+          timeout: 30000 
+        });
+        
+        // Wait a bit for any remaining rendering
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        await page.pdf({ 
+          path: pdfPath, 
+          format: 'Letter',
+          margin: {
+            top: '0.5in',
+            right: '0.5in',
+            bottom: '0.5in',
+            left: '0.5in'
+          },
+          printBackground: true
+        });
+        
+        attachments.push({
+          originalUrl: url,
+          filename: filename,
+          path: pdfPath
+        });
+        
+        // Replace URL in letter with reference to attachment
+        letter = letter.replace(new RegExp(url, 'g'), `[See Attachment ${i+1}: ${filename}]`);
+        
+      } catch (err) {
+        console.error(`Error capturing PDF for ${url}:`, err);
+        // Even if there's an error, we'll try to continue with other URLs
+      } finally {
+        await page.close();
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+  
+  return { letter, attachments };
+}
+
+/**
+ * Generate a PDF version of the letter
+ */
+async function generatePdf(text, outputPath) {
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+  });
+  
+  try {
+    const page = await browser.newPage();
+    
+    // Create HTML with proper formatting
+    await page.setContent(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              font-size: 12pt;
+              line-height: 1.5;
+              margin: 1in;
+            }
+            pre {
+              white-space: pre-wrap;
+              font-family: Arial, sans-serif;
+              font-size: 12pt;
+            }
+          </style>
+        </head>
+        <body>
+          <pre>${text}</pre>
+        </body>
+      </html>
+    `);
+    
+    await page.pdf({
+      path: outputPath,
+      format: 'Letter',
+      margin: {
+        top: '0.5in',
+        right: '0.5in',
+        bottom: '0.5in',
+        left: '0.5in'
+      }
+    });
+    
+    return outputPath;
+  } finally {
+    await browser.close();
   }
 }
 
@@ -271,19 +413,73 @@ router.post('/process-chatgpt', async (req, res) => {
         havenForHopeExample
       );
       
-      // Save the generated letter
+      // Save the generated letter in text format
       await fs.writeFile(
         path.join(outputDir, 'protest_letter.txt'),
         letter,
         'utf8'
       );
+      
+      // 5) Process URLs in the letter and download as PDFs
+      console.log('Extracting and downloading URLs from the letter...');
+      const { letter: updatedLetter, attachments } = await extractAndDownloadUrls(
+        letter, 
+        outputDir
+      );
+      
+      // Save the updated letter with attachment references
+      await fs.writeFile(
+        path.join(outputDir, 'protest_letter_with_attachments.txt'),
+        updatedLetter,
+        'utf8'
+      );
+      
+      // 6) Generate PDF version of the letter
+      console.log('Generating PDF version of the letter...');
+      const pdfPath = path.join(outputDir, 'protest_letter.pdf');
+      await generatePdf(updatedLetter, pdfPath);
+      
+      // 7) Create a complete package as a ZIP file
+      console.log('Creating complete protest package ZIP file...');
+      const zipPath = path.join(outputDir, 'complete_protest_package.zip');
+      const zip = new AdmZip();
+      
+      // Add the main letter PDF
+      zip.addLocalFile(pdfPath);
+      
+      // Add all attachment PDFs
+      for (const attachment of attachments) {
+        zip.addLocalFile(attachment.path);
+      }
+      
+      // Add a README file explaining the package contents
+      const readmeContent = `ERC PROTEST PACKAGE
 
-      // 5) Return JSON with all processed data
+Main Document:
+- protest_letter.pdf (The main protest letter)
+
+Attachments:
+${attachments.map((a, i) => `${i+1}. ${a.filename} (original URL: ${a.originalUrl})`).join('\n')}
+
+Generated on: ${new Date().toISOString()}
+`;
+      
+      zip.addFile('README.txt', Buffer.from(readmeContent));
+      
+      // Write the ZIP file
+      zip.writeZip(zipPath);
+      console.log(`ZIP package created at: ${zipPath}`);
+
+      // 8) Return response with all relevant data
       res.status(200).json({
         success: true,
-        letter,
+        letter: updatedLetter,
         conversationContent,
-        outputPath: outputDir
+        outputPath: outputDir,
+        pdfPath,
+        attachments,
+        zipPath,
+        packageFilename: path.basename(zipPath)
       });
       
     } catch (error) {

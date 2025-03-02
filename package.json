@@ -18,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "adm-zip": "^0.5.16",
     "cheerio": "^1.0.0",
     "cors": "*",
     "dotenv": "*",
