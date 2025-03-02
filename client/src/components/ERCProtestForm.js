@@ -17,8 +17,7 @@ const ERCProtestForm = () => {
     businessWebsite: '',
     naicsCode: '',
     timePeriod: '',
-    additionalInfo: '',
-    disallowanceReasons: ''
+    additionalInfo: ''
   });
   
   const [pdfFiles, setPdfFiles] = useState([]);
@@ -267,23 +266,10 @@ const ERCProtestForm = () => {
               <Divider sx={{ my: 3 }} />
               
               <Typography variant="h6" gutterBottom>
-                Disallowance Information
+                Upload Disallowance Notice
               </Typography>
               
               <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={4}
-                    label="Disallowance Reasons"
-                    name="disallowanceReasons"
-                    value={formData.disallowanceReasons}
-                    onChange={handleInputChange}
-                    placeholder="Describe the reasons for disallowance mentioned in the IRS notice..."
-                  />
-                </Grid>
-                
                 <Grid item xs={12}>
                   <Button
                     variant="outlined"
@@ -313,21 +299,14 @@ const ERCProtestForm = () => {
                   Generate Protest Letter
                 </Typography>
                 <Typography variant="body2" color="text.secondary" paragraph>
-                  After completing your COVID orders research, paste the results into the Disallowance Reasons field above. 
-                  Then click the button below to generate a formal protest letter that you can download and submit to the IRS.
+                  After completing your COVID orders research in ChatGPT, paste the ChatGPT conversation link below 
+                  to generate a formal protest letter that you can download and submit to the IRS.
                 </Typography>
                 
                 {/* Add the Protest Letter Generator component */}
                 <ERCProtestLetterGenerator 
-                  formData={formData} 
-                  disallowanceInfo={formData.disallowanceReasons} 
+                  formData={formData}
                 />
-                
-                {formData.disallowanceReasons ? null : (
-                  <Alert severity="info" sx={{ mt: 2 }}>
-                    Complete your COVID orders research and paste the results into the Disallowance Reasons field to enable letter generation.
-                  </Alert>
-                )}
               </Box>
               
               <Divider sx={{ my: 3 }} />
