@@ -1,4 +1,4 @@
-// server.js - Main server file for ERC Protest Generator
+// server/server.js update
 
 const express = require('express');
 const path = require('path');
@@ -9,6 +9,7 @@ const morgan = require('morgan');
 const fs = require('fs').promises;
 const ercProtestRouter = require('./routes/erc-protest');
 const adminRouter = require('./routes/admin');
+const chatgptScraperRouter = require('./routes/chatgpt-scraper'); // Add this line
 const { authenticateUser, adminOnly } = require('./middleware/auth');
 
 // Load environment variables
@@ -35,6 +36,7 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 // API routes
 app.use('/api/erc-protest', ercProtestRouter);
 app.use('/api/erc-protest/admin', authenticateUser, adminOnly, adminRouter);
+app.use('/api/erc-protest/chatgpt', chatgptScraperRouter); // Add this line
 
 // Create necessary directories
 async function createDirectories() {

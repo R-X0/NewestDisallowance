@@ -10,17 +10,22 @@
     "install-all": "npm install && cd client && npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["erc", "protest", "tax"],
+  "keywords": [
+    "erc",
+    "protest",
+    "tax"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "*",
     "cors": "*",
-    "helmet": "*",
     "dotenv": "*",
-    "morgan": "*",
+    "express": "*",
     "googleapis": "*",
+    "helmet": "*",
+    "morgan": "*",
     "multer": "*",
+    "puppeteer": "^24.3.0",
     "uuid": "*"
   },
   "devDependencies": {
