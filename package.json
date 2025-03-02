@@ -26,6 +26,7 @@
     "helmet": "*",
     "morgan": "*",
     "multer": "*",
+    "openai": "^4.86.1",
     "puppeteer": "^24.3.0",
     "uuid": "*"
   },

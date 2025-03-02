@@ -6,366 +6,132 @@ const puppeteer = require('puppeteer');
 const fs = require('fs').promises;
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-const cheerio = require('cheerio');
 
-/**
- * Process a ChatGPT conversation link
- * - Extracts conversation content
- * - Identifies COVID-related information
- * - Returns processed content for ERC protest letter generation
- */
-router.post('/process-chatgpt', async (req, res) => {
-  try {
-    const { chatGptLink, businessName, ein, location, timePeriod, businessType } = req.body;
-    
-    if (!chatGptLink) {
-      return res.status(400).json({
-        success: false,
-        message: 'ChatGPT conversation link is required'
-      });
-    }
+// For openai@4.x+ in CommonJS, use default import:
+const OpenAI = require('openai').default;
 
-    console.log(`Starting to process ChatGPT link: ${chatGptLink}`);
-    
-    // Create a unique ID for this request
-    const requestId = uuidv4().substring(0, 8);
-    
-    // Create directory for any downloaded attachments
-    const outputDir = path.join(__dirname, `../../data/ChatGPT_Conversations/${requestId}`);
-    await fs.mkdir(outputDir, { recursive: true });
-    
-    // Launch browser to scrape ChatGPT conversation
-    const browser = await puppeteer.launch({ 
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-    });
-    
-    console.log('Browser launched successfully');
-    
-    const page = await browser.newPage();
-    
-    // Set a reasonable viewport size
-    await page.setViewport({ width: 1280, height: 800 });
-    
-    // Set a longer timeout for navigation
-    await page.setDefaultNavigationTimeout(60000);
-    
-    // Enable request interception to speed up page load
-    await page.setRequestInterception(true);
-    page.on('request', (request) => {
-      // Block images, fonts, and stylesheets to speed up loading
-      if (['image', 'font', 'stylesheet'].includes(request.resourceType())) {
-        request.abort();
-      } else {
-        request.continue();
-      }
-    });
-    
-    console.log(`Navigating to ChatGPT link: ${chatGptLink}`);
-    
-    try {
-      // Navigate to the ChatGPT conversation
-      await page.goto(chatGptLink, { waitUntil: 'networkidle2' });
-      console.log('Navigation completed');
-    } catch (navError) {
-      console.error('Navigation error:', navError);
-      
-      // If navigation times out, try waiting for the DOM to be ready
-      console.log('Attempting to navigate with domcontentloaded instead');
-      await page.goto(chatGptLink, { waitUntil: 'domcontentloaded' });
-    }
-    
-    // Wait for page content to load and stabilize
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Get the page HTML for further processing
-    const html = await page.content();
-    
-    console.log('Page content retrieved, attempting to extract conversation');
-    
-    // Extract the conversation content using various methods
-    let conversationContent = '';
-    
-    // Method 1: Extract using page evaluation with deep element access
-    try {
-      // Use JavaScript in the browser context to extract text from nested elements
-      conversationContent = await page.evaluate(() => {
-        // Function to recursively get text from an element and its children
-        const getElementText = (element) => {
-          if (!element) return '';
-          
-          let text = '';
-          // Get text from this element
-          if (element.nodeType === Node.TEXT_NODE) {
-            text += element.textContent.trim() + ' ';
-          } 
-          // Process child nodes
-          else if (element.childNodes && element.childNodes.length > 0) {
-            for (const child of element.childNodes) {
-              text += getElementText(child);
-            }
-          }
-          return text;
-        };
-        
-        // Find user and assistant messages
-        const messagePairs = [];
-        const articles = document.querySelectorAll('article');
-        
-        articles.forEach(article => {
-          const role = article.querySelector('[data-message-author-role]')?.getAttribute('data-message-author-role');
-          if (!role) return;
-          
-          // Get all paragraph elements and extract their text
-          const paragraphs = article.querySelectorAll('[data-start]');
-          let messageText = '';
-          
-          if (paragraphs && paragraphs.length > 0) {
-            paragraphs.forEach(p => {
-              messageText += p.textContent.trim() + '\n';
-            });
-          } else {
-            // Fallback to all text if no data-start elements
-            messageText = getElementText(article);
-          }
-          
-          // Add formatted message
-          if (messageText.trim()) {
-            messagePairs.push(`${role === 'user' ? 'User' : 'Assistant'}: ${messageText.trim()}`);
-          }
-        });
-        
-        return messagePairs.join('\n\n');
-      });
-      
-      console.log(`Extracted conversation using browser evaluation: ${conversationContent.length} characters`);
-    } catch (evalError) {
-      console.error('Error with browser evaluation:', evalError);
-    }
-    
-    // Method 2: If above method fails, try using cheerio
-    if (!conversationContent || conversationContent.length < 100) {
-      console.log('Browser evaluation failed or returned minimal content, trying cheerio');
-      
-      const $ = cheerio.load(html);
-      const messages = [];
-      
-      // Extract text from data-start elements
-      $('article').each((i, article) => {
-        const roleElement = $(article).find('[data-message-author-role]');
-        const role = roleElement.attr('data-message-author-role');
-        
-        if (!role) return;
-        
-        let messageText = '';
-        
-        // Try to find paragraphs with data-start attributes
-        const paragraphs = $(article).find('[data-start]');
-        
-        if (paragraphs.length > 0) {
-          paragraphs.each((j, para) => {
-            messageText += $(para).text().trim() + '\n';
-          });
-        } else {
-          // Fallback to collecting all text
-          messageText = $(article).text().trim();
-        }
-        
-        if (messageText.trim()) {
-          messages.push(`${role === 'user' ? 'User' : 'Assistant'}: ${messageText.trim()}`);
-        }
-      });
-      
-      conversationContent = messages.join('\n\n');
-      console.log(`Extracted conversation using cheerio: ${conversationContent.length} characters`);
-    }
-    
-    // Method 3: Last resort - try directly with wider selectors
-    if (!conversationContent || conversationContent.length < 100) {
-      console.log('Cheerio extraction failed, trying wider selectors');
-      
-      try {
-        // Get all text from paragraphs
-        const paragraphs = await page.$$eval('p, [data-start], .prose, .markdown', 
-          elements => elements
-            .filter(el => el.textContent && el.textContent.trim().length > 20)
-            .map(el => el.textContent.trim())
-        );
-        
-        conversationContent = paragraphs.join('\n\n');
-        console.log(`Extracted ${paragraphs.length} paragraphs using wide selectors`);
-      } catch (wideError) {
-        console.error('Error with wide selectors:', wideError);
-      }
-    }
-    
-    // Save the full conversation text for debugging
-    await fs.writeFile(
-      path.join(outputDir, 'conversation.txt'), 
-      conversationContent, 
-      'utf8'
-    );
-    
-    console.log(`Conversation content length: ${conversationContent.length} characters`);
-    
-    // Take a screenshot for debugging
-    await page.screenshot({ path: path.join(outputDir, 'screenshot.png') });
-    
-    // Extract COVID-related orders or information from the conversation
-    let covidOrders = extractCovidOrders(conversationContent);
-    
-    // Close the browser
-    await browser.close();
-    console.log('Browser closed');
-    
-    // Save extracted COVID orders for reference
-    await fs.writeFile(
-      path.join(outputDir, 'covid_orders.txt'), 
-      covidOrders.join('\n\n'), 
-      'utf8'
-    );
-    
-    // Generate a protest letter using the extracted content
-    const currentDate = new Date().toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    });
-    
-    // Format the extracted orders into a readable format
-    const formattedOrders = formatCovidOrders(covidOrders);
-    
-    // Generate the protest letter
-    const letter = generateProtestLetter(
-      businessName,
-      ein,
-      location,
-      timePeriod,
-      businessType || 'business',
-      formattedOrders,
-      currentDate
-    );
-    
-    console.log('Successfully generated protest letter');
-    
-    // Return success with the letter and conversation content
-    res.status(200).json({
-      success: true,
-      letter,
-      conversationContent,
-      extractedOrders: covidOrders
-    });
-    
-  } catch (error) {
-    console.error('Error processing ChatGPT conversation:', error);
-    res.status(500).json({
-      success: false,
-      message: `Error processing ChatGPT conversation: ${error.message}`
-    });
-  }
+// Instantiate the OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 /**
- * Extract COVID-related orders from conversation text
+ * 1) Use GPT to sanitize raw HTML from ChatGPT's page
+ *    - Return only user messages, ChatGPT messages, and relevant links.
+ */
+async function sendToGPTForSanitization(rawHtml) {
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'o3-mini', // or 'gpt-3.5-turbo', etc.
+      messages: [
+        {
+          role: 'developer',
+          content: `You are a helpful assistant that cleans up raw HTML from a ChatGPT page.
+            Return only the user messages, ChatGPT messages, and relevant links.
+            Remove extraneous HTML, scripts, or noise.`
+        },
+        {
+          role: 'user',
+          content: `Here is the entire HTML of the ChatGPT page. Please parse it and return only a clean transcript:
+${rawHtml}`
+        }
+      ],
+    });
+
+    // Get GPT's cleaned-up text
+    const cleanedText = response.choices[0].message.content.trim();
+    return cleanedText;
+  } catch (error) {
+    console.error('Error calling OpenAI for sanitization:', error);
+    // Fallback: return raw HTML if GPT fails
+    return rawHtml || '';
+  }
+}
+
+/**
+ * 2) Extract COVID-related orders from the sanitized text
  */
 function extractCovidOrders(text) {
   if (!text || typeof text !== 'string') {
     return [];
   }
   
-  // Split into paragraphs/sections
+  // Split into paragraphs
   const paragraphs = text.split(/\n\n+/);
   
   // Patterns to identify COVID-related orders
   const orderPatterns = [
-    // Executive orders
     /(?:Executive Order|Order No\.)[^.]*(?:COVID|coronavirus|pandemic|emergency|closure|restriction)[^.]*\./gi,
-    
-    // Health department orders
     /(?:Public Health|Health Department|Department of Health)[^.]*(?:order|directive|mandate|guidance)[^.]*\./gi,
-    
-    // Specific orders with dates or numbers
     /(?:Order|Directive|Proclamation) (?:No\. |Number |#)?[A-Z0-9-]+[^.]*\./gi,
-    
-    // Emergency declarations
     /(?:State of Emergency|Emergency Declaration|Emergency Order)[^.]*\./gi,
-    
-    // COVID-specific language
     /(?:COVID-19|coronavirus) (?:restriction|requirement|mandate|order|directive)[^.]*\./gi,
-    
-    // Blueprint or reopening language
     /(?:Blueprint|Reopening|Tier)[^.]*(?:COVID|coronavirus|pandemic|restriction)[^.]*\./gi,
-    
-    // Q3 specific mentions
     /Q3 2020[^.]*(?:COVID|coronavirus|pandemic|restriction)[^.]*\./gi
   ];
   
   const orders = [];
   
-  // Process each paragraph
+  // Look for paragraphs referencing COVID and orders
   paragraphs.forEach(paragraph => {
-    // Skip very short paragraphs
-    if (paragraph.length < 40) return;
-    
-    // Check if paragraph mentions COVID and orders
-    const isRelevant = 
+    if (paragraph.length < 40) return; // skip short
+    const isRelevant =
       /(?:COVID|coronavirus|pandemic|emergency|closure|restriction)/i.test(paragraph) &&
       /(?:order|directive|mandate|proclamation|restriction|guidance)/i.test(paragraph);
     
     if (isRelevant) {
-      // Apply each pattern to extract specific order references
       for (const pattern of orderPatterns) {
         const matches = paragraph.match(pattern);
         if (matches) {
           matches.forEach(match => {
-            // Only add if not already included and not too short
             if (!orders.includes(match) && match.length > 30) {
               orders.push(match);
             }
           });
         }
       }
-      
-      // If no specific orders were matched but paragraph is relevant, 
-      // include the whole paragraph if it's reasonably sized
+      // If nothing matched specifically, but it's relevant, keep paragraph
       if (orders.length === 0 && paragraph.length < 500) {
         orders.push(paragraph);
       }
     }
   });
-  
-  // If no specific orders found, look for paragraphs mentioning Q3 2020
+
+  // If we still found nothing, try Q3 2020 fallback
   if (orders.length === 0) {
     paragraphs.forEach(paragraph => {
-      if (paragraph.length > 100 && 
-          paragraph.includes('Q3 2020') && 
-          /(?:COVID|coronavirus|pandemic|emergency|closure|restriction)/i.test(paragraph)) {
+      if (
+        paragraph.length > 100 &&
+        paragraph.includes('Q3 2020') &&
+        /(?:COVID|coronavirus|pandemic|emergency|closure|restriction)/i.test(paragraph)
+      ) {
         orders.push(paragraph);
       }
     });
   }
   
-  // Deduplicate and limit to most relevant orders
+  // Deduplicate
   const uniqueOrders = [...new Set(orders)];
-  return uniqueOrders.slice(0, 10); // Limit to top 10 most relevant
+  return uniqueOrders.slice(0, 10);
 }
 
 /**
- * Format COVID orders for inclusion in the protest letter
+ * 3) Format extracted COVID orders for the protest letter
  */
 function formatCovidOrders(orders) {
   if (!orders || orders.length === 0) {
-    return "Based on the research, multiple government orders were in effect during the time period in question that significantly impacted business operations. These orders included capacity restrictions, social distancing requirements, and operational limitations that directly affected normal business functions.";
+    return `Based on the research, multiple government orders were in effect during the time period in question 
+that significantly impacted business operations. These orders included capacity restrictions, social distancing 
+requirements, and operational limitations that directly affected normal business functions.`;
   }
-  
   return orders
-    .slice(0, 5) // Limit to top 5 for readability
-    .map((order, index) => `${index + 1}. ${order.trim()}`)
+    .slice(0, 5)
+    .map((order, i) => `${i + 1}. ${order.trim()}`)
     .join('\n\n');
 }
 
 /**
- * Generate a protest letter using extracted information
+ * 4) Generate the protest letter
  */
 function generateProtestLetter(businessName, ein, location, timePeriod, businessType, covidOrders, currentDate) {
   return `${currentDate}
@@ -434,5 +200,142 @@ Attachments:
 - Documentation of relevant government orders
 - Evidence of business impact`;
 }
+
+// ----------------------------------------------------------------------------
+// MAIN ROUTE
+// ----------------------------------------------------------------------------
+
+router.post('/process-chatgpt', async (req, res) => {
+  try {
+    const {
+      chatGptLink,
+      businessName,
+      ein,
+      location,
+      timePeriod,
+      businessType
+    } = req.body;
+
+    if (!chatGptLink) {
+      return res.status(400).json({
+        success: false,
+        message: 'ChatGPT conversation link is required'
+      });
+    }
+
+    console.log(`Processing ChatGPT link: ${chatGptLink}`);
+
+    // Unique directory for request
+    const requestId = uuidv4().substring(0, 8);
+    const outputDir = path.join(__dirname, `../../data/ChatGPT_Conversations/${requestId}`);
+    await fs.mkdir(outputDir, { recursive: true });
+
+    // Launch Puppeteer
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    });
+
+    console.log('Browser launched');
+    const page = await browser.newPage();
+    // Larger viewport & longer timeout
+    await page.setViewport({ width: 1280, height: 800 });
+    await page.setDefaultNavigationTimeout(60000);
+
+    // (Optional) block images & fonts:
+    await page.setRequestInterception(true);
+    page.on('request', (request) => {
+      if (['image', 'font', 'stylesheet'].includes(request.resourceType())) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
+
+    // Navigate
+    console.log(`Navigating to: ${chatGptLink}`);
+    try {
+      await page.goto(chatGptLink, { waitUntil: 'networkidle2' });
+      console.log('Navigation success');
+    } catch (err) {
+      console.error('Navigation error:', err);
+      console.log('Trying domcontentloaded instead');
+      await page.goto(chatGptLink, { waitUntil: 'domcontentloaded' });
+    }
+
+    // Let things stabilize
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // 1) Grab the entire HTML
+    const rawHTML = await page.content();
+
+    // 2) Send the full HTML to GPT for sanitization
+    const conversationContent = await sendToGPTForSanitization(rawHTML);
+    console.log(`Clean conversation length: ${conversationContent.length} chars`);
+
+    // Save sanitized conversation
+    await fs.writeFile(
+      path.join(outputDir, 'conversation.txt'),
+      conversationContent,
+      'utf8'
+    );
+
+    // Screenshot & raw HTML for reference
+    await page.screenshot({
+      path: path.join(outputDir, 'screenshot.png'),
+      fullPage: true
+    });
+    // Also save the raw HTML in case you need it
+    await fs.writeFile(
+      path.join(outputDir, 'page.html'),
+      rawHTML,
+      'utf8'
+    );
+
+    // Close browser
+    await browser.close();
+    console.log('Browser closed');
+
+    // Extract COVID orders
+    const covidOrders = extractCovidOrders(conversationContent);
+    // Save them (optional)
+    await fs.writeFile(
+      path.join(outputDir, 'covid_orders.txt'),
+      covidOrders.join('\n\n'),
+      'utf8'
+    );
+
+    // Generate protest letter
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    const formattedOrders = formatCovidOrders(covidOrders);
+    const letter = generateProtestLetter(
+      businessName,
+      ein,
+      location,
+      timePeriod,
+      businessType || 'business',
+      formattedOrders,
+      currentDate
+    );
+
+    // Return JSON
+    res.status(200).json({
+      success: true,
+      letter,
+      conversationContent,  // GPT-cleaned conversation
+      extractedOrders: covidOrders
+    });
+  } catch (error) {
+    console.error('Error processing ChatGPT conversation:', error);
+    res.status(500).json({
+      success: false,
+      message: `Error processing ChatGPT conversation: ${error.message}`
+    });
+  }
+});
 
 module.exports = router;
