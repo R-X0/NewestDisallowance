@@ -38,11 +38,14 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
   const [chatGptLink, setChatGptLink] = useState('');
   const [processing, setProcessing] = useState(false);
   const [processingMessage, setProcessingMessage] = useState('');
+  const [processingStep, setProcessingStep] = useState(0);
 
   // Function to generate protest letter using our LLM API
   const generateProtestLetter = async () => {
     setGenerating(true);
     setError(null);
+    setProcessing(true);
+    setProcessingStep(0);
     
     try {
       // Get business type based on NAICS code
@@ -58,23 +61,22 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
         businessType: businessType
       };
       
-      // Show processing steps
-      setProcessing(true);
+      // Update processing steps
+      setProcessingMessage('Connecting to ChatGPT conversation...');
+      setProcessingStep(1);
       
-      // Simulate processing steps (in a real implementation, these would be progress updates from the backend)
-      setProcessingMessage('Accessing ChatGPT conversation...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setProcessingMessage('Extracting COVID-19 orders and research data...');
+      setProcessingStep(2);
+      
+      // Call the API to generate the letter
+      const response = await generateERCProtestLetter(letterData);
       
       await new Promise(resolve => setTimeout(resolve, 1500));
-      setProcessingMessage('Extracting research data and sources...');
+      setProcessingMessage('Generating protest letter...');
+      setProcessingStep(3);
       
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setProcessingMessage('Downloading source documents as attachments...');
-      
-      await new Promise(resolve => setTimeout(resolve, 2500));
-      setProcessingMessage('Generating protest letter with attachments...');
-      
-      // Make API call using our service
-      const response = await generateERCProtestLetter(letterData);
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       if (response.success) {
         setProtestLetter(response.letter);
@@ -92,8 +94,6 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
     }
   };
   
-  // No longer needed as we're not generating mock letters
-  
   const copyToClipboard = () => {
     navigator.clipboard.writeText(protestLetter)
       .then(() => {
@@ -109,6 +109,15 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
     setDialogOpen(false);
   };
   
+  const validateChatGptLink = (link) => {
+    return link && (
+      link.startsWith('https://chat.openai.com/') || 
+      link.startsWith('https://chatgpt.com/') ||
+      link.includes('chat.openai.com') ||
+      link.includes('chatgpt.com')
+    );
+  };
+  
   return (
     <Box mt={3}>
       <Paper elevation={3} sx={{ p: 3 }}>
@@ -119,7 +128,7 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
         
         <Typography variant="body2" color="text.secondary" paragraph>
           Paste a link to your ChatGPT conversation containing COVID-19 research. 
-          The system will extract information, save referenced sources as PDFs, and include them as attachments in your protest letter.
+          Our system will extract the information and generate a customized protest letter for your ERC claim.
         </Typography>
         
         <TextField
@@ -128,7 +137,10 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
           variant="outlined"
           value={chatGptLink}
           onChange={(e) => setChatGptLink(e.target.value)}
-          placeholder="https://chatgpt.com/c/..."
+          placeholder="https://chat.openai.com/c/..."
+          error={chatGptLink !== '' && !validateChatGptLink(chatGptLink)}
+          helperText={chatGptLink !== '' && !validateChatGptLink(chatGptLink) ? 
+            "Please enter a valid ChatGPT conversation link" : ""}
           InputProps={{
             startAdornment: <Link color="action" sx={{ mr: 1 }} />,
           }}
@@ -136,7 +148,8 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
         />
         
         <Alert severity="info" sx={{ mb: 2 }}>
-          The system will analyze your ChatGPT conversation to extract relevant COVID-19 orders and save referenced sources as attachments.
+          Make sure your ChatGPT conversation includes specific COVID-19 orders that affected your business during {formData.timePeriod}. 
+          The system will analyze your conversation to extract this information for your protest letter.
         </Alert>
         
         {error && (
@@ -151,7 +164,7 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
             color="primary"
             startIcon={<Description />}
             onClick={generateProtestLetter}
-            disabled={generating || !chatGptLink}
+            disabled={generating || !chatGptLink || !validateChatGptLink(chatGptLink)}
             sx={{ minWidth: 200 }}
           >
             {generating ? 'Generating...' : 'Generate Protest Letter'}
@@ -163,16 +176,14 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
             <Typography variant="body2" align="center" gutterBottom>
               {processingMessage}
             </Typography>
-            <LinearProgress />
-          </Box>
-        )}
-        
-        {generating && !processing && (
-          <Box mt={3}>
-            <Typography variant="body2" align="center" gutterBottom>
-              Generating your ERC protest letter...
+            <LinearProgress 
+              variant="determinate" 
+              value={processingStep * 25} 
+              sx={{ mt: 1, mb: 2 }}
+            />
+            <Typography variant="caption" align="center" display="block" color="text.secondary">
+              This process may take 1-2 minutes as we need to extract and analyze your ChatGPT conversation.
             </Typography>
-            <LinearProgress />
           </Box>
         )}
         

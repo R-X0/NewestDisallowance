@@ -1,4 +1,4 @@
-// client/src/services/api.js - Updated
+// client/src/services/api.js
 
 import axios from 'axios';
 
@@ -38,21 +38,48 @@ export const updateTracking = async (submissionId, trackingNumber) => {
   return response.data;
 };
 
-// Generate an ERC protest letter
+// Generate an ERC protest letter using our ChatGPT scraper
 export const generateERCProtestLetter = async (letterData) => {
-  // Use only the chatgpt processor endpoint
-  const endpoint = `${API_URL}/erc-protest/chatgpt/process-chatgpt`;
-  
-  const response = await axios.post(
-    endpoint,
-    letterData,
-    {
-      headers: {
-        'Content-Type': 'application/json'
-      }
+  try {
+    console.log('Generating protest letter with data:', letterData);
+    
+    // Make sure we have the ChatGPT link
+    if (!letterData.chatGptLink) {
+      throw new Error('ChatGPT conversation link is required');
     }
-  );
-  
-  // Simply return the response data - no additional formatting
-  return response.data;
+    
+    // Call the ChatGPT scraper endpoint
+    const response = await axios.post(
+      `${API_URL}/erc-protest/chatgpt/process-chatgpt`,
+      letterData,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        // Increase timeout for the scraping process which may take time
+        timeout: 120000 // 2 minutes
+      }
+    );
+    
+    console.log('Successfully received response from ChatGPT scraper');
+    return response.data;
+  } catch (error) {
+    console.error('Error in generateERCProtestLetter:', error);
+    
+    // Provide a more helpful error message
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Server responded with error:', error.response.data);
+      throw new Error(error.response.data.message || 'Server error occurred');
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received from server:', error.request);
+      throw new Error('No response received from server. Is the server running?');
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error('Error setting up request:', error.message);
+      throw error;
+    }
+  }
 };
