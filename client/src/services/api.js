@@ -35,3 +35,17 @@ export const updateTracking = async (submissionId, trackingNumber) => {
   );
   return response.data;
 };
+
+// New function to generate an ERC protest letter
+export const generateERCProtestLetter = async (letterData) => {
+  const response = await axios.post(
+    `${API_URL}/erc-protest/letter/generate-letter`,
+    letterData,
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+  return response.data;
+};
