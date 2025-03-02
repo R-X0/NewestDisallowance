@@ -3,8 +3,6 @@ import {
   Container, Box, TextField, MenuItem, Button, 
   Typography, Paper, Grid, Divider, CircularProgress 
 } from '@mui/material';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { FileUpload } from '@mui/icons-material';
 
 const ERCProtestForm = () => {
@@ -92,208 +90,206 @@ const ERCProtestForm = () => {
   };
   
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-        <Paper elevation={3} sx={{ p: 4 }}>
-          <Typography variant="h4" gutterBottom>
-            ERC Disallowance Protest Generator
-          </Typography>
-          <Divider sx={{ mb: 3 }} />
-          
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              {/* Business Information */}
-              <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom>
-                  Business Information
-                </Typography>
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  required
-                  label="Business Name"
-                  name="businessName"
-                  value={formData.businessName}
-                  onChange={handleInputChange}
-                />
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  required
-                  label="EIN"
-                  name="ein"
-                  value={formData.ein}
-                  onChange={handleInputChange}
-                  placeholder="XX-XXXXXXX"
-                  inputProps={{
-                    pattern: "[0-9]{2}-[0-9]{7}",
-                    title: "EIN format: XX-XXXXXXX"
-                  }}
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  required
-                  label="Business Location"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  placeholder="City, State"
-                />
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  required
-                  label="Business Website"
-                  name="businessWebsite"
-                  value={formData.businessWebsite}
-                  onChange={handleInputChange}
-                  placeholder="https://example.com"
-                  type="url"
-                />
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  required
-                  label="NAICS Code"
-                  name="naicsCode"
-                  value={formData.naicsCode}
-                  onChange={handleInputChange}
-                  placeholder="6-digit NAICS Code"
-                  inputProps={{
-                    pattern: "[0-9]{6}",
-                    title: "6-digit NAICS code"
-                  }}
-                />
-              </Grid>
-              
-              {/* Time Period */}
-              <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom>
-                  Claim Information
-                </Typography>
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  required
-                  select
-                  label="Time Period"
-                  name="timePeriod"
-                  value={formData.timePeriod}
-                  onChange={handleInputChange}
-                >
-                  {quarters.map((quarter) => (
-                    <MenuItem key={quarter} value={quarter}>
-                      {quarter}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={4}
-                  label="Additional Information"
-                  name="additionalInfo"
-                  value={formData.additionalInfo}
-                  onChange={handleInputChange}
-                  placeholder="Any additional details about the business operation during COVID..."
-                />
-              </Grid>
-              
-              {/* Disallowance Information */}
-              <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom>
-                  Disallowance Information
-                </Typography>
-              </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={4}
-                  label="Disallowance Reasons"
-                  name="disallowanceReasons"
-                  value={formData.disallowanceReasons}
-                  onChange={handleInputChange}
-                  placeholder="Describe the reasons for disallowance mentioned in the IRS notice..."
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <Button
-                  variant="outlined"
-                  component="label"
-                  startIcon={<FileUpload />}
-                  sx={{ mt: 1 }}
-                >
-                  Upload Disallowance Notices (PDF)
-                  <input
-                    type="file"
-                    multiple
-                    accept=".pdf"
-                    hidden
-                    onChange={handleFileUpload}
-                  />
-                </Button>
-                {pdfFiles.length > 0 && (
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    {pdfFiles.length} file(s) selected
-                  </Typography>
-                )}
-              </Grid>
-              
-              {/* Submit Button */}
-              <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  disabled={isSubmitting}
-                  sx={{ mt: 2 }}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <CircularProgress size={24} sx={{ mr: 1 }} />
-                      Processing...
-                    </>
-                  ) : 'Generate ERC Protest Package'}
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-          
-          {submissionStatus && (
-            <Box mt={3} p={2} bgcolor={submissionStatus.success ? 'success.light' : 'error.light'} borderRadius={1}>
-              <Typography variant="body1">
-                {submissionStatus.message}
+    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          ERC Disallowance Protest Generator
+        </Typography>
+        <Divider sx={{ mb: 3 }} />
+        
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={3}>
+            {/* Business Information */}
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Business Information
               </Typography>
-              {submissionStatus.success && submissionStatus.data?.trackingId && (
-                <Typography variant="body2" mt={1}>
-                  Tracking ID: {submissionStatus.data.trackingId}
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                required
+                label="Business Name"
+                name="businessName"
+                value={formData.businessName}
+                onChange={handleInputChange}
+              />
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                required
+                label="EIN"
+                name="ein"
+                value={formData.ein}
+                onChange={handleInputChange}
+                placeholder="XX-XXXXXXX"
+                inputProps={{
+                  pattern: "[0-9]{2}-[0-9]{7}",
+                  title: "EIN format: XX-XXXXXXX"
+                }}
+              />
+            </Grid>
+            
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                required
+                label="Business Location"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                placeholder="City, State"
+              />
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                required
+                label="Business Website"
+                name="businessWebsite"
+                value={formData.businessWebsite}
+                onChange={handleInputChange}
+                placeholder="https://example.com"
+                type="url"
+              />
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                required
+                label="NAICS Code"
+                name="naicsCode"
+                value={formData.naicsCode}
+                onChange={handleInputChange}
+                placeholder="6-digit NAICS Code"
+                inputProps={{
+                  pattern: "[0-9]{6}",
+                  title: "6-digit NAICS code"
+                }}
+              />
+            </Grid>
+            
+            {/* Time Period */}
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Claim Information
+              </Typography>
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                required
+                select
+                label="Time Period"
+                name="timePeriod"
+                value={formData.timePeriod}
+                onChange={handleInputChange}
+              >
+                {quarters.map((quarter) => (
+                  <MenuItem key={quarter} value={quarter}>
+                    {quarter}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Additional Information"
+                name="additionalInfo"
+                value={formData.additionalInfo}
+                onChange={handleInputChange}
+                placeholder="Any additional details about the business operation during COVID..."
+              />
+            </Grid>
+            
+            {/* Disallowance Information */}
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Disallowance Information
+              </Typography>
+            </Grid>
+            
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Disallowance Reasons"
+                name="disallowanceReasons"
+                value={formData.disallowanceReasons}
+                onChange={handleInputChange}
+                placeholder="Describe the reasons for disallowance mentioned in the IRS notice..."
+              />
+            </Grid>
+            
+            <Grid item xs={12}>
+              <Button
+                variant="outlined"
+                component="label"
+                startIcon={<FileUpload />}
+                sx={{ mt: 1 }}
+              >
+                Upload Disallowance Notices (PDF)
+                <input
+                  type="file"
+                  multiple
+                  accept=".pdf"
+                  hidden
+                  onChange={handleFileUpload}
+                />
+              </Button>
+              {pdfFiles.length > 0 && (
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {pdfFiles.length} file(s) selected
                 </Typography>
               )}
-            </Box>
-          )}
-        </Paper>
-      </Container>
-    </LocalizationProvider>
+            </Grid>
+            
+            {/* Submit Button */}
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={isSubmitting}
+                sx={{ mt: 2 }}
+              >
+                {isSubmitting ? (
+                  <>
+                    <CircularProgress size={24} sx={{ mr: 1 }} />
+                    Processing...
+                  </>
+                ) : 'Generate ERC Protest Package'}
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+        
+        {submissionStatus && (
+          <Box mt={3} p={2} bgcolor={submissionStatus.success ? 'success.light' : 'error.light'} borderRadius={1}>
+            <Typography variant="body1">
+              {submissionStatus.message}
+            </Typography>
+            {submissionStatus.success && submissionStatus.data?.trackingId && (
+              <Typography variant="body2" mt={1}>
+                Tracking ID: {submissionStatus.data.trackingId}
+              </Typography>
+            )}
+          </Box>
+        )}
+      </Paper>
+    </Container>
   );
 };
 
-export default ERCProtestForm;
+export default ERCProtestForm
