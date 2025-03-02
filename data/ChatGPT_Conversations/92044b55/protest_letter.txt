@@ -1,0 +1,59 @@
+03/02/2025
+Internal Revenue Service
+Ogden, UT 84201
+
+EIN: 2342  
+Taxpayer Name: 34  
+RE: Formal Protest to Letter 105 – ERC Disallowance for Q4  
+Tax Period: 4th Quarter 2020 (202010)  
+Claim Amount: $150,000
+
+Dear Appeals Officer,
+
+We write in response to the IRS notice disallowing 34’s Employee Retention Credit (ERC) claim for the fourth quarter of 2020. The disallowance was based on the assertion that “no government orders were in effect” during October 1 to December 31, 2020 that caused a suspension of our operations. We respectfully disagree. Multiple federal, state, county, and city governmental orders were active during Q4 2020, imposing COVID-19–related restrictions and requirements that limited 34’s normal business operations. In this letter, we provide a detailed timeline of relevant government orders, demonstrate their impact on our business activities in Camarillo, California and surrounding areas, and cite applicable IRS guidance showing why 34 qualifies for the ERC under the “partial suspension” provisions.
+
+Timeline of COVID-19 Government Orders Active in Q4 2020
+
+Federal – National Emergency (Proclamation 9994):  
+Declared on March 13, 2020 and remaining in effect throughout 2020–2021, this proclamation activated federal emergency powers and provided the enabling authority for ensuing state and local orders. Its ongoing status during Q4 2020 underscored the nation’s response to COVID-19 and provided the legal basis for many restrictive measures imposed on businesses.
+
+California State – COVID-19 State of Emergency and Related Directives:  
+Governor Newsom’s State of Emergency, declared on March 4, 2020, continued to remain active through Q4 2020. This emergency declaration underpinned all subsequent public health orders and justified rigorous health and safety measures. Additionally, the “Statewide ‘Stay-at-Home’ Order” (Executive Order N-33-20), originally enacted on March 19, 2020, had lingering effects on business operations—although phased reopenings had occurred, modified restrictions and capacity limits continued to affect operations in our region.
+
+California State – “Blueprint for a Safer Economy” Framework:  
+Implemented beginning August 28, 2020, this color-tier system continued to dictate which businesses could operate, under what capacity, and with what restrictions. For many sectors in Camarillo, including our operations, the framework meant that significant limitations remained in force through the later months of 2020, directly influencing our ability to conduct normal business activities.
+
+California State – Regional Stay-at-Home Order:  
+On December 3, 2020 (with effects beginning December 6, 2020), California imposed a Regional Stay-at-Home Order in response to severe winter surges and declining ICU capacity across Southern California. This order mandated the closure of nearly all indoor business operations, including those of establishments such as ours, which—even with modified outdoor service options—experienced a partial suspension of normal operations.
+
+Local – City of Camarillo Orders and Supporting Directives:  
+The City of Camarillo maintained its Local Emergency Proclamation (EOC Director Order No. 20-1, ratified March 13, 2020) throughout 2020–2021, reinforcing the ongoing crisis status in the region. Further, Camarillo’s eviction moratorium orders and temporary regulatory relief measures (such as the Temporary Outdoor Dining Program enacted in June 2020) not only underscored the severity of COVID‑19 impacts but also influenced local business operations well into Q4 2020 by necessitating operational modifications and reducing capacity.
+
+Summary of Relevant Orders and Operational Impact on 34
+
+The above timeline illustrates that during Q4 2020 34 was subject to multiple COVID‑19 governmental orders which materially limited our business operations. Although partial reopenings had been attempted earlier in the year under the Blueprint framework, the imposition of the Regional Stay-at-Home Order in December 2020 forced a closure of indoor operations and mandated strict capacity limitations for any permitted outdoor activities. The ongoing state of emergency and related local remedies not only signaled the critical public health situation but also imposed operational constraints—for example, requirements to implement social distancing, reduce occupancy levels, and postpone customary in‑person transactions—that led to a significant curtailment of our business activities. These constraints, far from being nominal adjustments, resulted in a substantial reduction in the volume and scope of our day‑to‑day operations.
+
+ERC Partial Suspension Qualification – IRS Guidance and Analysis
+
+Under the CARES Act as amended for 2020, an employer qualifies for the ERC in a given quarter if it experienced either (a) a significant decline in gross receipts or (b) a full or partial suspension of operations due to orders from an appropriate governmental authority. While our gross receipts for Q4 2020 did not fall below the prescribed thresholds, 34’s claim is squarely based on the partial suspension test. Applicable IRS guidance, which specifies that a government order that limits operations in a manner affecting more than a nominal part of an employer’s business constitutes a partial suspension, clearly applies in our case.
+
+The combined effect of the aforementioned orders—ranging from the persistent national emergency to state‑level mandates like the Regional Stay‑at‑Home Order—resulted in operational restrictions that significantly curtailed our normal business activities. For example, mandatory capacity limits, enforced social distancing protocols, and the prohibition of indoor operations drastically reduced our ability to generate revenue and maintain our customary level of service. IRS guidance confirms that such limitations, when they impact a substantial portion of an employer’s operations, may be considered a partial suspension even if they do not result in a complete shutdown. In the case of 34, the interruption to key business functions during Q4 2020 was decisive and meets the threshold for a partial suspension as envisioned by Congress.
+
+Conclusion and Request
+
+In light of the above facts and supporting authorities, 34 clearly qualifies for the Employee Retention Credit for Q4 2020 due to a partial suspension of operations caused by multiple COVID‑19 government orders. We have demonstrated that a series of federal, state, and local directives were in effect during the relevant period and that these orders directly and substantially limited our ability to operate at normal capacity. This satisfies the ERC criteria under the applicable IRS guidance on partial suspensions.
+
+We respectfully request that the IRS reconsider and reverse the disallowance of our Q4 2020 ERC claim. The credit claimed was fully in line with statutory and regulatory guidance. We have enclosed documentation of the specific orders cited along with an analysis of their operational impact for your review. We trust that upon consideration of this information, you will find that 34 qualifies as an Eligible Employer under the governmental order partial suspension test and that our reported qualified wages for Q4 2020 are therefore entitled to the ERC.
+
+Attestation: “Under penalties of perjury, I declare that I submitted the protest and accompanying documents, and to the best of my personal knowledge and belief, the information stated in the protest and accompanying documents is true, correct, and complete.”
+
+Sincerely,
+
+Matthew R. Johnson, EA  
+Authorized Representative for 34
+
+Enclosures:  
+• Copies of Government Orders and Relevant Excerpts  
+• ERC Calculations for Q4 2020  
+• IRS Guidance Documentation  
+• Additional Supporting Documentation as Applicable
