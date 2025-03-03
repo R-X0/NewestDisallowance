@@ -35,8 +35,12 @@ async function uploadFilesToDriveAndUpdateTracking(trackingId, businessName, pdf
     );
     
     console.log(`Files uploaded to Drive for ${trackingId}:`, driveFiles);
+    console.log(`- Protest Letter Link: ${driveFiles.protestLetterLink}`);
+    console.log(`- ZIP Package Link: ${driveFiles.zipPackageLink}`);
+    console.log(`- Folder Link: ${driveFiles.folderLink}`);
     
     // Update Google Sheet with file links
+    console.log(`Updating Google Sheet for ${trackingId} with file links...`);
     await googleSheetsService.updateSubmission(trackingId, {
       status: 'PDF done',
       protestLetterPath: driveFiles.protestLetterLink,
@@ -44,6 +48,8 @@ async function uploadFilesToDriveAndUpdateTracking(trackingId, businessName, pdf
       googleDriveLink: driveFiles.folderLink,
       timestamp: new Date().toISOString()
     });
+    
+    console.log(`Google Sheet updated for ${trackingId}`);
     
     // Update the local file if it exists
     try {
@@ -73,7 +79,6 @@ async function uploadFilesToDriveAndUpdateTracking(trackingId, businessName, pdf
     throw error;
   }
 }
-
 /**
  * Use GPT to sanitize raw HTML from ChatGPT's page
  * Return only user messages, ChatGPT messages, and relevant links.

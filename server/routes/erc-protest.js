@@ -84,7 +84,12 @@ router.post('/submit', upload.array('disallowanceNotices', 5), async (req, res) 
       await googleSheetsService.addSubmission({
         trackingId,
         businessName,
+        ein,                  // Pass all these fields
+        location,
+        businessWebsite,
+        naicsCode,
         timePeriod,
+        additionalInfo,       // Pass additional info
         status: 'Gathering data',
         timestamp: new Date().toISOString(),
         googleDriveLink: submissionInfo.googleDriveLink || '',
@@ -92,7 +97,7 @@ router.post('/submit', upload.array('disallowanceNotices', 5), async (req, res) 
         zipPath: ''
       });
       
-      console.log('Added submission to Google Sheet with Drive link');
+      console.log('Added submission to Google Sheet with all fields');
     } catch (sheetError) {
       console.error('Error adding to Google Sheet:', sheetError);
       // Continue anyway, not a critical error
@@ -222,7 +227,7 @@ router.post('/update-status', async (req, res) => {
         status,
         protestLetterPath,
         zipPath,
-        googleDriveLink: req.body.googleDriveLink,
+        googleDriveLink,
         timestamp: new Date().toISOString()
       });
       

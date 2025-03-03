@@ -96,7 +96,7 @@ const ERCAdminDashboard = () => {
   const filteredSubmissions = submissions.filter(submission => {
     const matchesSearch = 
       submission.businessName.toLowerCase().includes(filter.toLowerCase()) ||
-      submission.trackingId.toLowerCase().includes(filter.toLowerCase());
+      (submission.trackingId && submission.trackingId.toLowerCase().includes(filter.toLowerCase()));
     
     const matchesStatus = 
       statusFilter === 'all' || 
@@ -179,19 +179,22 @@ const ERCAdminDashboard = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Business Name</TableCell>
+                  <TableCell>EIN</TableCell>
+                  <TableCell>Location</TableCell>
                   <TableCell>Quarter</TableCell>
                   <TableCell>Tracking ID</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell>Last Updated</TableCell>
                   <TableCell>Package</TableCell>
                   <TableCell>Tracking #</TableCell>
+                  <TableCell>Google Drive</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredSubmissions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center">
+                    <TableCell colSpan={11} align="center">
                       No submissions found
                     </TableCell>
                   </TableRow>
@@ -199,6 +202,8 @@ const ERCAdminDashboard = () => {
                   filteredSubmissions.map((submission) => (
                     <TableRow key={submission.trackingId}>
                       <TableCell>{submission.businessName}</TableCell>
+                      <TableCell>{submission.ein}</TableCell>
+                      <TableCell>{submission.location}</TableCell>
                       <TableCell>{submission.timePeriod}</TableCell>
                       <TableCell>{submission.trackingId}</TableCell>
                       <TableCell>
@@ -289,6 +294,17 @@ const ERCAdminDashboard = () => {
                         )}
                       </TableCell>
                       <TableCell>
+                        {submission.googleDriveLink && (
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => window.open(submission.googleDriveLink, '_blank')}
+                          >
+                            <Link />
+                          </IconButton>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         <Button
                           size="small"
                           variant="text"
@@ -338,8 +354,20 @@ const ERCAdminDashboard = () => {
                       <TableCell>{selectedSubmission.location}</TableCell>
                     </TableRow>
                     <TableRow>
+                      <TableCell variant="head">Business Website</TableCell>
+                      <TableCell>{selectedSubmission.businessWebsite}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell variant="head">NAICS Code</TableCell>
+                      <TableCell>{selectedSubmission.naicsCode}</TableCell>
+                    </TableRow>
+                    <TableRow>
                       <TableCell variant="head">Time Period</TableCell>
                       <TableCell>{selectedSubmission.timePeriod}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell variant="head">Additional Info</TableCell>
+                      <TableCell>{selectedSubmission.additionalInfo}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell variant="head">Tracking ID</TableCell>
@@ -388,26 +416,30 @@ const ERCAdminDashboard = () => {
                       <TableCell>Protest Letter</TableCell>
                       <TableCell>{selectedSubmission.protestLetterPath}</TableCell>
                       <TableCell>
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => window.open(`/api/erc-protest/admin/download?path=${selectedSubmission.protestLetterPath}`, '_blank')}
-                        >
-                          <CloudDownload />
-                        </IconButton>
+                        {selectedSubmission.protestLetterPath && (
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => window.open(`/api/erc-protest/admin/download?path=${selectedSubmission.protestLetterPath}`, '_blank')}
+                          >
+                            <CloudDownload />
+                          </IconButton>
+                        )}
                       </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Complete Package (ZIP)</TableCell>
                       <TableCell>{selectedSubmission.zipPath}</TableCell>
                       <TableCell>
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => window.open(`/api/erc-protest/admin/download?path=${selectedSubmission.zipPath}`, '_blank')}
-                        >
-                          <CloudDownload />
-                        </IconButton>
+                        {selectedSubmission.zipPath && (
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => window.open(`/api/erc-protest/admin/download?path=${selectedSubmission.zipPath}`, '_blank')}
+                          >
+                            <CloudDownload />
+                          </IconButton>
+                        )}
                       </TableCell>
                     </TableRow>
                   </TableBody>
