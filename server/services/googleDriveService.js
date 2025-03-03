@@ -158,6 +158,32 @@ class GoogleDriveService {
       });
       
       console.log(`Created folder: ${folderName} with ID: ${response.data.id}`);
+      
+      // Make the folder accessible by anyone with the link with writer permissions
+      await this.drive.permissions.create({
+        fileId: response.data.id,
+        requestBody: {
+          role: 'writer', // Changed from 'reader' to 'writer'
+          type: 'anyone'
+        }
+      });
+      
+      // Share with specified email - with error handling
+      try {
+        await this.drive.permissions.create({
+          fileId: response.data.id,
+          requestBody: {
+            role: 'writer',
+            type: 'user',
+            emailAddress: this.shareWithEmail
+          },
+          sendNotificationEmail: false // Changed to avoid notification spam
+        });
+      } catch (shareError) {
+        console.log(`Warning: Could not share folder with ${this.shareWithEmail}, but folder is still accessible: ${shareError.message}`);
+        // Continue anyway since the folder is publicly accessible with the link
+      }
+      
       return response.data;
     } catch (error) {
       console.error(`Error creating folder ${folderName}:`, error);
@@ -205,25 +231,30 @@ class GoogleDriveService {
       
       console.log(`Uploaded file: ${fileName} with ID: ${response.data.id}`);
       
-      // Make the file viewable by anyone with the link
+      // Make the file viewable by anyone with the link with writer permissions
       await this.drive.permissions.create({
         fileId: response.data.id,
         requestBody: {
-          role: 'reader',
+          role: 'writer', // Changed from 'reader' to 'writer'
           type: 'anyone'
         }
       });
       
-      // Share with specified email
-      await this.drive.permissions.create({
-        fileId: response.data.id,
-        requestBody: {
-          role: 'writer',
-          type: 'user',
-          emailAddress: this.shareWithEmail
-        },
-        sendNotificationEmail: true
-      });
+      // Share with specified email - only if needed
+      try {
+        await this.drive.permissions.create({
+          fileId: response.data.id,
+          requestBody: {
+            role: 'writer',
+            type: 'user',
+            emailAddress: this.shareWithEmail
+          },
+          sendNotificationEmail: false // Changed from true to avoid notification spam
+        });
+      } catch (shareError) {
+        console.log(`Warning: Could not share with ${this.shareWithEmail}, but file is still accessible: ${shareError.message}`);
+        // Continue anyway since the file is publicly accessible with the link
+      }
       
       return response.data;
     } catch (error) {
