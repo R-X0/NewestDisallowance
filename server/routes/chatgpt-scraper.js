@@ -8,6 +8,8 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const cheerio = require('cheerio');
 const AdmZip = require('adm-zip');
+const googleDriveService = require('../services/googleDriveService');
+const googleSheetsService = require('../services/googleSheetsService');
 
 // For openai@4.x+ in CommonJS, use default import:
 const OpenAI = require('openai').default;
@@ -16,6 +18,61 @@ const OpenAI = require('openai').default;
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+/**
+ * Upload files to Google Drive and update tracking info
+ */
+async function uploadFilesToDriveAndUpdateTracking(trackingId, businessName, pdfPath, zipPath) {
+  try {
+    console.log(`Uploading protest files to Google Drive for ${trackingId}...`);
+    
+    // Upload to Google Drive
+    const driveFiles = await googleDriveService.uploadProtestFiles(
+      trackingId,
+      businessName,
+      pdfPath,
+      zipPath
+    );
+    
+    console.log(`Files uploaded to Drive for ${trackingId}:`, driveFiles);
+    
+    // Update Google Sheet with file links
+    await googleSheetsService.updateSubmission(trackingId, {
+      status: 'PDF done',
+      protestLetterPath: driveFiles.protestLetterLink,
+      zipPath: driveFiles.zipPackageLink,
+      googleDriveLink: driveFiles.folderLink,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Update the local file if it exists
+    try {
+      const submissionPath = path.join(__dirname, `../data/ERC_Disallowances/${trackingId}/submission_info.json`);
+      const submissionData = await fs.readFile(submissionPath, 'utf8');
+      const submissionInfo = JSON.parse(submissionData);
+      
+      submissionInfo.status = 'PDF done';
+      submissionInfo.protestLetterPath = driveFiles.protestLetterLink;
+      submissionInfo.zipPath = driveFiles.zipPackageLink;
+      submissionInfo.googleDriveLink = driveFiles.folderLink;
+      submissionInfo.timestamp = new Date().toISOString();
+      
+      await fs.writeFile(
+        submissionPath,
+        JSON.stringify(submissionInfo, null, 2)
+      );
+      
+      console.log(`Updated local file for ${trackingId} with Google Drive links`);
+    } catch (fileErr) {
+      console.log(`Local file for ${trackingId} not found, skipping update`);
+    }
+    
+    return driveFiles;
+  } catch (error) {
+    console.error(`Error uploading to Drive for ${trackingId}:`, error);
+    throw error;
+  }
+}
 
 /**
  * Use GPT to sanitize raw HTML from ChatGPT's page
@@ -270,7 +327,8 @@ router.post('/process-chatgpt', async (req, res) => {
       ein,
       location,
       timePeriod,
-      businessType
+      businessType,
+      trackingId
     } = req.body;
 
     // Validate required inputs
@@ -470,18 +528,50 @@ Generated on: ${new Date().toISOString()}
       zip.writeZip(zipPath);
       console.log(`ZIP package created at: ${zipPath}`);
 
-      // 8) Return response with all relevant data
-      res.status(200).json({
-        success: true,
-        letter: updatedLetter,
-        conversationContent,
-        outputPath: outputDir,
-        pdfPath,
-        attachments,
-        zipPath,
-        packageFilename: path.basename(zipPath)
-      });
-      
+      // Upload to Google Drive if tracking ID is provided
+      let driveUrls = null;
+      if (trackingId) {
+        try {
+          console.log(`Tracking ID provided: ${trackingId}, uploading to Google Drive...`);
+          driveUrls = await uploadFilesToDriveAndUpdateTracking(
+            trackingId,
+            businessName,
+            pdfPath,
+            zipPath
+          );
+        } catch (driveError) {
+          console.error('Error uploading to Google Drive:', driveError);
+          // Continue anyway, this shouldn't fail the whole request
+        }
+      }
+
+      // Include Drive URLs in the response if available
+      if (driveUrls) {
+        res.status(200).json({
+          success: true,
+          letter: updatedLetter,
+          conversationContent,
+          outputPath: outputDir,
+          pdfPath,
+          attachments,
+          zipPath,
+          packageFilename: path.basename(zipPath),
+          googleDriveLink: driveUrls.folderLink,
+          protestLetterLink: driveUrls.protestLetterLink,
+          zipPackageLink: driveUrls.zipPackageLink
+        });
+      } else {
+        res.status(200).json({
+          success: true,
+          letter: updatedLetter,
+          conversationContent,
+          outputPath: outputDir,
+          pdfPath,
+          attachments,
+          zipPath,
+          packageFilename: path.basename(zipPath)
+        });
+      }
     } catch (error) {
       console.error('Error during processing:', error);
       

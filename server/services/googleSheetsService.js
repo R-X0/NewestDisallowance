@@ -49,8 +49,6 @@ class GoogleSheetsService {
   async addSubmission(submissionData) {
     await this.ensureInitialized();
     
-    // Removed check for spreadsheetId since we're hardcoding it now
-
     const {
       trackingId,
       businessName,
@@ -59,14 +57,15 @@ class GoogleSheetsService {
       timestamp = new Date().toISOString(),
       protestLetterPath = '',
       zipPath = '',
-      trackingNumber = ''
+      trackingNumber = '',
+      googleDriveLink = ''
     } = submissionData;
 
     try {
       console.log('Adding submission to Google Sheet with ID:', this.spreadsheetId);
       const response = await this.sheets.spreadsheets.values.append({
         spreadsheetId: this.spreadsheetId,
-        range: 'ERC Tracking!A:H',
+        range: 'ERC Tracking!A:I', // Added an extra column for Google Drive link
         valueInputOption: 'RAW',
         resource: {
           values: [
@@ -78,7 +77,8 @@ class GoogleSheetsService {
               timestamp,
               protestLetterPath,
               zipPath,
-              trackingNumber
+              trackingNumber,
+              googleDriveLink // Add the Google Drive link
             ]
           ]
         }
@@ -96,7 +96,7 @@ class GoogleSheetsService {
         
         const response = await this.sheets.spreadsheets.values.append({
           spreadsheetId: this.spreadsheetId,
-          range: 'ERC Tracking!A:H',
+          range: 'ERC Tracking!A:I', // Added an extra column for Google Drive link
           valueInputOption: 'RAW',
           resource: {
             values: [
@@ -108,7 +108,8 @@ class GoogleSheetsService {
                 timestamp,
                 protestLetterPath,
                 zipPath,
-                trackingNumber
+                trackingNumber,
+                googleDriveLink // Add the Google Drive link
               ]
             ]
           }
@@ -126,8 +127,6 @@ class GoogleSheetsService {
   async updateSubmission(trackingId, updateData) {
     await this.ensureInitialized();
     
-    // Removed check for spreadsheetId since we're hardcoding it now
-
     try {
       // First, find the row with the matching tracking ID
       const response = await this.sheets.spreadsheets.values.get({
@@ -155,7 +154,8 @@ class GoogleSheetsService {
         timestamp = new Date().toISOString(),
         protestLetterPath,
         zipPath,
-        trackingNumber
+        trackingNumber,
+        googleDriveLink
       } = updateData;
       
       // Create update data, only including fields that are provided
@@ -206,6 +206,15 @@ class GoogleSheetsService {
         });
       }
       
+      if (googleDriveLink !== undefined) {
+        await this.sheets.spreadsheets.values.update({
+          spreadsheetId: this.spreadsheetId,
+          range: `ERC Tracking!I${rowIndex}`,
+          valueInputOption: 'RAW',
+          resource: { values: [[googleDriveLink]] },
+        });
+      }
+      
       console.log(`Updated submission ${trackingId} in Google Sheet`);
       return { success: true, rowIndex };
     } catch (error) {
@@ -217,12 +226,10 @@ class GoogleSheetsService {
   async getAllSubmissions() {
     await this.ensureInitialized();
     
-    // Removed check for spreadsheetId since we're hardcoding it now
-
     try {
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId: this.spreadsheetId,
-        range: 'ERC Tracking!A2:H',
+        range: 'ERC Tracking!A2:I', // Updated to include Google Drive link
       });
       
       const rows = response.data.values || [];
@@ -235,7 +242,8 @@ class GoogleSheetsService {
         timestamp: row[4] || '',
         protestLetterPath: row[5] || '',
         zipPath: row[6] || '',
-        trackingNumber: row[7] || ''
+        trackingNumber: row[7] || '',
+        googleDriveLink: row[8] || '' // Google Drive folder link
       }));
       
       return submissions;

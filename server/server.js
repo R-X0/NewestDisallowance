@@ -12,6 +12,7 @@ const adminRouter = require('./routes/admin');
 const chatgptScraperRouter = require('./routes/chatgpt-scraper');
 const { authenticateUser, adminOnly } = require('./middleware/auth');
 const googleSheetsService = require('./services/googleSheetsService');
+const googleDriveService = require('./services/googleDriveService');
 
 // Load environment variables
 dotenv.config();
@@ -74,12 +75,17 @@ async function createDirectories() {
 // Initialize Google Sheets service
 async function initializeServices() {
   try {
+    // Initialize Google Sheets
     await googleSheetsService.initialize();
     console.log('Google Sheets service initialized successfully');
+    
+    // Initialize Google Drive
+    await googleDriveService.initialize();
+    console.log('Google Drive service initialized successfully');
   } catch (error) {
-    console.error('Failed to initialize Google Sheets service:', error);
+    console.error('Failed to initialize Google services:', error);
     console.log('Make sure you have a valid google-credentials.json file in the config directory');
-    console.log('The app will continue, but Google Sheets integration may not work');
+    console.log('The app will continue, but Google services integration may not work');
   }
 }
 

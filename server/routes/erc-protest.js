@@ -6,6 +6,7 @@ const fs = require('fs').promises;
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const googleSheetsService = require('../services/googleSheetsService');
+const googleDriveService = require('../services/googleDriveService');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -60,6 +61,19 @@ router.post('/submit', upload.array('disallowanceNotices', 5), async (req, res) 
       status: 'Gathering data'
     };
     
+    // Create a Google Drive folder for this submission
+    try {
+      const driveFolder = await googleDriveService.createSubmissionFolder(trackingId, businessName);
+      
+      // Add Google Drive folder link to submission info
+      submissionInfo.googleDriveLink = driveFolder.folderLink;
+      
+      console.log(`Created Google Drive folder for ${trackingId}: ${driveFolder.folderLink}`);
+    } catch (driveError) {
+      console.error('Error creating Google Drive folder:', driveError);
+      // Continue anyway, not a critical error
+    }
+    
     await fs.writeFile(
       path.join(submissionDir, 'submission_info.json'),
       JSON.stringify(submissionInfo, null, 2)
@@ -72,10 +86,13 @@ router.post('/submit', upload.array('disallowanceNotices', 5), async (req, res) 
         businessName,
         timePeriod,
         status: 'Gathering data',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        googleDriveLink: submissionInfo.googleDriveLink || '',
+        protestLetterPath: '',
+        zipPath: ''
       });
       
-      console.log('Added submission to Google Sheet');
+      console.log('Added submission to Google Sheet with Drive link');
     } catch (sheetError) {
       console.error('Error adding to Google Sheet:', sheetError);
       // Continue anyway, not a critical error
@@ -161,7 +178,7 @@ router.get('/status/:trackingId', async (req, res) => {
 // Update submission status (for testing or API usage)
 router.post('/update-status', async (req, res) => {
   try {
-    const { trackingId, status, protestLetterPath, zipPath } = req.body;
+    const { trackingId, status, protestLetterPath, zipPath, googleDriveLink } = req.body;
     
     if (!trackingId || !status) {
       return res.status(400).json({
@@ -187,6 +204,10 @@ router.post('/update-status', async (req, res) => {
         submissionInfo.zipPath = zipPath;
       }
       
+      if (googleDriveLink) {
+        submissionInfo.googleDriveLink = googleDriveLink;
+      }
+      
       await fs.writeFile(
         submissionPath,
         JSON.stringify(submissionInfo, null, 2)
@@ -201,6 +222,7 @@ router.post('/update-status', async (req, res) => {
         status,
         protestLetterPath,
         zipPath,
+        googleDriveLink: req.body.googleDriveLink,
         timestamp: new Date().toISOString()
       });
       
