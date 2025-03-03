@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const puppeteer = require('puppeteer');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const cheerio = require('cheerio');
@@ -25,8 +26,40 @@ const openai = new OpenAI({
 async function uploadFilesToDriveAndUpdateTracking(trackingId, businessName, pdfPath, zipPath) {
   try {
     console.log(`Uploading protest files to Google Drive for ${trackingId}...`);
+    console.log(`PDF path: ${pdfPath}`);
+    console.log(`ZIP path: ${zipPath}`);
     
-    // Upload to Google Drive
+    // Verify files exist before upload
+    if (!fsSync.existsSync(pdfPath)) {
+      throw new Error(`PDF file does not exist at ${pdfPath}`);
+    }
+    
+    if (!fsSync.existsSync(zipPath)) {
+      throw new Error(`ZIP file does not exist at ${zipPath}`);
+    }
+    
+    // Get file sizes for verification
+    const pdfStats = fsSync.statSync(pdfPath);
+    const zipStats = fsSync.statSync(zipPath);
+    console.log(`PDF size: ${pdfStats.size} bytes`);
+    console.log(`ZIP size: ${zipStats.size} bytes`);
+    
+    if (pdfStats.size === 0) {
+      throw new Error('PDF file is empty');
+    }
+    
+    if (zipStats.size === 0) {
+      throw new Error('ZIP file is empty');
+    }
+    
+    // Initialize Google Drive service if needed
+    if (!googleDriveService.initialized) {
+      console.log('Initializing Google Drive service...');
+      await googleDriveService.initialize();
+    }
+    
+    // Call the Google Drive service directly
+    console.log(`Calling uploadProtestFiles with trackingId=${trackingId}, businessName=${businessName}`);
     const driveFiles = await googleDriveService.uploadProtestFiles(
       trackingId,
       businessName,
@@ -79,6 +112,7 @@ async function uploadFilesToDriveAndUpdateTracking(trackingId, businessName, pdf
     throw error;
   }
 }
+
 /**
  * Use GPT to sanitize raw HTML from ChatGPT's page
  * Return only user messages, ChatGPT messages, and relevant links.
@@ -592,12 +626,31 @@ Generated on: ${new Date().toISOString()}
       if (trackingId) {
         try {
           console.log(`Tracking ID provided: ${trackingId}, uploading to Google Drive...`);
-          driveUrls = await uploadFilesToDriveAndUpdateTracking(
-            trackingId,
-            businessName,
-            pdfPath,
-            zipPath
-          );
+          
+          // Verify files exist before attempting upload
+          console.log(`File details for upload:`);
+          console.log(`- PDF Path: ${pdfPath} (exists: ${fsSync.existsSync(pdfPath)})`);
+          console.log(`- ZIP Path: ${zipPath} (exists: ${fsSync.existsSync(zipPath)})`);
+          
+          if (fsSync.existsSync(pdfPath) && fsSync.existsSync(zipPath)) {
+            // Get file sizes
+            const pdfStats = fsSync.statSync(pdfPath);
+            const zipStats = fsSync.statSync(zipPath);
+            console.log(`- PDF Size: ${pdfStats.size} bytes`);
+            console.log(`- ZIP Size: ${zipStats.size} bytes`);
+            
+            // Upload files to Drive (this is the key fix)
+            driveUrls = await uploadFilesToDriveAndUpdateTracking(
+              trackingId,
+              businessName,
+              pdfPath,
+              zipPath
+            );
+            
+            console.log(`Upload complete. Drive URLs:`, driveUrls);
+          } else {
+            throw new Error('One or more files do not exist for upload');
+          }
         } catch (driveError) {
           console.error('Error uploading to Google Drive:', driveError);
           // Continue anyway, this shouldn't fail the whole request
