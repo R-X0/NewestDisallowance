@@ -10,7 +10,6 @@ const fs = require('fs').promises;
 const ercProtestRouter = require('./routes/erc-protest');
 const adminRouter = require('./routes/admin');
 const chatgptScraperRouter = require('./routes/chatgpt-scraper');
-const formsRouter = require('./routes/forms'); // Added missing import
 const { authenticateUser, adminOnly } = require('./middleware/auth');
 const googleSheetsService = require('./services/googleSheetsService');
 const googleDriveService = require('./services/googleDriveService');
@@ -48,7 +47,6 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 app.use('/api/erc-protest', ercProtestRouter);
 app.use('/api/erc-protest/admin', authenticateUser, adminOnly, adminRouter);
 app.use('/api/erc-protest/chatgpt', chatgptScraperRouter);
-app.use('/api/erc-protest/forms', formsRouter);
 
 // Debug route to check if the server is working
 app.get('/api/debug', (req, res) => {
@@ -62,8 +60,7 @@ async function createDirectories() {
       path.join(__dirname, 'uploads/temp'),
       path.join(__dirname, 'data/ERC_Disallowances'),
       path.join(__dirname, 'data/ChatGPT_Conversations'),
-      path.join(__dirname, 'config'),
-      path.join(__dirname, 'templates/forms') // Add templates/forms directory
+      path.join(__dirname, 'config')
     ];
     
     for (const dir of directories) {
@@ -85,11 +82,6 @@ async function initializeServices() {
     // Initialize Google Drive
     await googleDriveService.initialize();
     console.log('Google Drive service initialized successfully');
-    
-    // Initialize static forms middleware
-    const staticFormsMiddleware = require('./middleware/static-forms');
-    await staticFormsMiddleware(app);
-    console.log('Static forms middleware initialized successfully');
   } catch (error) {
     console.error('Failed to initialize services:', error);
     console.log('Make sure you have a valid google-credentials.json file in the config directory');
@@ -119,6 +111,5 @@ app.listen(PORT, async () => {
   - /api/erc-protest
   - /api/erc-protest/admin
   - /api/erc-protest/chatgpt
-  - /api/erc-protest/forms
   - /api/debug`);
 });
