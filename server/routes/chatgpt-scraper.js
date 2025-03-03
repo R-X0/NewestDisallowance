@@ -315,6 +315,60 @@ Create a comprehensive protest letter using the business information and COVID d
   }
 }
 
+// Generate customized COVID prompt through OpenAI
+router.post('/generate-prompt', async (req, res) => {
+    try {
+      const { basePrompt, businessInfo } = req.body;
+      
+      if (!basePrompt || !businessInfo) {
+        return res.status(400).json({
+          success: false,
+          message: 'Base prompt and business information are required'
+        });
+      }
+      
+      // Use OpenAI to generate a customized prompt
+      const response = await openai.chat.completions.create({
+        model: process.env.OPENAI_MODEL || 'o3-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a tool that generates COVID-19 government order research prompts. 
+            Your output must be ONLY the finished prompt with no explanations, introductions, or meta-commentary.
+            Do not include phrases like "Here is a prompt" or "This is a customized prompt."
+            Just provide the actual prompt content that the user will copy and paste.`
+          },
+          {
+            role: 'user',
+            content: `Create a detailed research prompt about COVID-19 government orders for a ${businessInfo.businessType} 
+            in ${businessInfo.city}, ${businessInfo.state} during ${businessInfo.timePeriod}.
+            
+            Base your response on this template but improve and expand it:
+            ${basePrompt}
+            
+            Make it more specific with questions relevant to this business type and time period.
+            Format with numbered sections if appropriate, but do NOT include any explanatory text about what you're doing.
+            Your entire response should be ONLY the prompt that will be copied and pasted.`
+          }
+        ],
+      });
+  
+      // Get GPT's customized prompt
+      const customizedPrompt = response.choices[0].message.content.trim();
+      
+      res.status(200).json({
+        success: true,
+        prompt: customizedPrompt
+      });
+    } catch (error) {
+      console.error('Error generating customized prompt:', error);
+      res.status(500).json({
+        success: false,
+        message: `Error generating prompt: ${error.message}`
+      });
+    }
+  });
+
 // ----------------------------------------------------------------------------
 // MAIN ROUTE
 // ----------------------------------------------------------------------------

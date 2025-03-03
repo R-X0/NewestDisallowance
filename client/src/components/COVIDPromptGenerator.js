@@ -4,6 +4,7 @@ import {
   Divider, Alert, Snackbar, IconButton
 } from '@mui/material';
 import { ContentCopy, CheckCircle } from '@mui/icons-material';
+import axios from 'axios';
 
 // Utility function to extract city and state from location string
 const extractCityState = (location) => {
@@ -49,35 +50,63 @@ const COVIDPromptGenerator = ({ formData }) => {
     }
   }, [formData]);
   
-  const generatePrompt = () => {
+  const generatePrompt = async () => {
     setGenerating(true);
     
-    setTimeout(() => {
-      try {
-        const { city, state } = extractCityState(formData.location || '');
-        const businessType = getNaicsDescription(formData.naicsCode);
-        
-        // Extract quarter and year from time period
-        let quarter = '';
-        let year = '';
-        
-        if (formData.timePeriod) {
-          const parts = formData.timePeriod.split(' ');
-          if (parts.length === 2) {
-            quarter = parts[0];
-            year = parts[1];
-          }
+    try {
+      const { city, state } = extractCityState(formData.location || '');
+      const businessType = getNaicsDescription(formData.naicsCode);
+      
+      // Extract quarter and year from time period
+      let quarter = '';
+      let year = '';
+      
+      if (formData.timePeriod) {
+        const parts = formData.timePeriod.split(' ');
+        if (parts.length === 2) {
+          quarter = parts[0];
+          year = parts[1];
         }
-        
-        const promptTemplate = `Please provide all state, city, and county COVID-related government orders, proclamations, and public health orders in place during 2020-2021 that would affect a "${businessType}" business located in ${city}, ${state}. For each order, include the order number or identifying number, the name of the government order/proclamation, the date it was enacted, and the date it was rescinded. If rescinded by subsequent orders, list subsequent order and dates. Additionally, please provide a detailed summary of 3-5 sentences for each order, explaining what the order entailed and how it specifically impacted a ${businessType} in ${formData.timePeriod}. Provide possible reasons how ${formData.timePeriod} Covid Orders would have affected the business in that quarter.`;
-        
-        setPrompt(promptTemplate);
-        setGenerating(false);
-      } catch (error) {
-        console.error('Error generating prompt:', error);
-        setGenerating(false);
       }
-    }, 500); // Simulate processing time
+      
+      // Base template prompt that we want to customize
+      const basePrompt = `Please provide all state, city, and county COVID-related government orders, proclamations, and public health orders in place during 2020-2021 that would affect a "${businessType}" business located in ${city}, ${state}. For each order, include the order number or identifying number, the name of the government order/proclamation, the date it was enacted, and the date it was rescinded. If rescinded by subsequent orders, list subsequent order and dates. Additionally, please provide a detailed summary of 3-5 sentences for each order, explaining what the order entailed and how it specifically impacted a ${businessType} in ${formData.timePeriod}. Provide possible reasons how ${formData.timePeriod} Covid Orders would have affected the business in that quarter.`;
+      
+      // Use OpenAI API to generate a customized prompt based on the business info
+      try {
+        const response = await axios.post('/api/erc-protest/chatgpt/generate-prompt', {
+          basePrompt,
+          businessInfo: {
+            businessType,
+            city,
+            state,
+            quarter,
+            year,
+            timePeriod: formData.timePeriod
+          }
+        });
+        
+        if (response.data && response.data.prompt) {
+          setPrompt(response.data.prompt);
+        } else {
+          // If API fails or isn't available, fall back to the base prompt
+          setPrompt(basePrompt);
+        }
+      } catch (apiError) {
+        console.error('Error calling GPT API:', apiError);
+        // Fall back to the base prompt if API call fails
+        setPrompt(basePrompt);
+      }
+    } catch (error) {
+      console.error('Error generating prompt:', error);
+      // In case of any error, just use a simpler version of the prompt
+      const { city, state } = extractCityState(formData.location || '');
+      const businessType = getNaicsDescription(formData.naicsCode);
+      
+      setPrompt(`Please provide all state, city, and county COVID-related government orders, proclamations, and public health orders in place during ${formData.timePeriod} that would affect a "${businessType}" business located in ${city}, ${state}. For each order, include the order number, the date it was enacted, and the date it was rescinded. Additionally, please explain how each order specifically impacted a ${businessType}.`);
+    } finally {
+      setGenerating(false);
+    }
   };
   
   const copyToClipboard = () => {
