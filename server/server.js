@@ -1,4 +1,4 @@
-// server/server.js
+// server/server.js (updated)
 
 const express = require('express');
 const path = require('path');
@@ -10,6 +10,7 @@ const fs = require('fs').promises;
 const ercProtestRouter = require('./routes/erc-protest');
 const adminRouter = require('./routes/admin');
 const chatgptScraperRouter = require('./routes/chatgpt-scraper');
+// We'll use static middleware instead of a router for forms
 const { authenticateUser, adminOnly } = require('./middleware/auth');
 const googleSheetsService = require('./services/googleSheetsService');
 const googleDriveService = require('./services/googleDriveService');
@@ -47,6 +48,7 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 app.use('/api/erc-protest', ercProtestRouter);
 app.use('/api/erc-protest/admin', authenticateUser, adminOnly, adminRouter);
 app.use('/api/erc-protest/chatgpt', chatgptScraperRouter);
+app.use('/api/erc-protest/forms', formsRouter); // Add the new forms router
 
 // Debug route to check if the server is working
 app.get('/api/debug', (req, res) => {
@@ -60,7 +62,8 @@ async function createDirectories() {
       path.join(__dirname, 'uploads/temp'),
       path.join(__dirname, 'data/ERC_Disallowances'),
       path.join(__dirname, 'data/ChatGPT_Conversations'),
-      path.join(__dirname, 'config')
+      path.join(__dirname, 'config'),
+      path.join(__dirname, 'templates/forms') // Add templates/forms directory
     ];
     
     for (const dir of directories) {
@@ -82,10 +85,15 @@ async function initializeServices() {
     // Initialize Google Drive
     await googleDriveService.initialize();
     console.log('Google Drive service initialized successfully');
+    
+    // Initialize static forms middleware
+    const staticFormsMiddleware = require('./middleware/static-forms');
+    await staticFormsMiddleware(app);
+    console.log('Static forms middleware initialized successfully');
   } catch (error) {
-    console.error('Failed to initialize Google services:', error);
+    console.error('Failed to initialize services:', error);
     console.log('Make sure you have a valid google-credentials.json file in the config directory');
-    console.log('The app will continue, but Google services integration may not work');
+    console.log('The app will continue, but some services may not work');
   }
 }
 
@@ -103,5 +111,6 @@ app.listen(PORT, async () => {
   - /api/erc-protest
   - /api/erc-protest/admin
   - /api/erc-protest/chatgpt
+  - /api/erc-protest/forms
   - /api/debug`);
 });

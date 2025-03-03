@@ -7,6 +7,7 @@ import {
 import { FileUpload } from '@mui/icons-material';
 import COVIDPromptGenerator from './COVIDPromptGenerator';
 import ERCProtestLetterGenerator from './ERCProtestLetterGenerator';
+import Form2848Generator from './Form2848Generator'; // Import the new component
 
 const ERCProtestForm = () => {
   // State for form data
@@ -270,18 +271,30 @@ const ERCProtestForm = () => {
                     sx={{ mt: 1, mr: 1 }}
                     disabled={!isFormValid()}
                   >
-                    Continue to Generate Prompt
+                    Continue to Generate Documents
                   </Button>
                 </Box>
               </form>
             </StepContent>
           </Step>
           
-          {/* Step 2: Generate COVID Order Prompt */}
+          {/* Step 2: Generate COVID Order Prompt and Form 2848 */}
           <Step>
-            <StepLabel>Generate COVID Orders Research Prompt</StepLabel>
+            <StepLabel>Generate Required Documents</StepLabel>
             <StepContent>
+              {/* COVID Prompt Generator */}
+              <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+                COVID Orders Research Prompt
+              </Typography>
               <COVIDPromptGenerator formData={formData} />
+              
+              <Divider sx={{ my: 3 }} />
+              
+              {/* Form 2848 Generator */}
+              <Typography variant="h6" gutterBottom>
+                Power of Attorney (Form 2848)
+              </Typography>
+              <Form2848Generator formData={formData} />
               
               <Divider sx={{ my: 3 }} />
               
