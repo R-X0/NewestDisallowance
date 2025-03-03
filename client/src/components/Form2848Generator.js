@@ -1,28 +1,47 @@
 import React, { useState } from 'react';
-import { Box, Button, CircularProgress } from '@mui/material';
+import { Box, Button, CircularProgress, Alert, Snackbar } from '@mui/material';
 import { FileDownload } from '@mui/icons-material';
 import { PDFDocument, StandardFonts } from 'pdf-lib';
 
-const SimpleForm2848Generator = ({ formData }) => {
+const Form2848Generator = ({ formData }) => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [showError, setShowError] = useState(false);
 
   const generateForm2848 = async () => {
     if (!formData.businessName || !formData.ein || !formData.location) {
-      alert('Business information is incomplete. Please fill all required fields.');
+      setError('Business information is incomplete. Please fill all required fields.');
+      setShowError(true);
       return;
     }
 
     setLoading(true);
+    setError(null);
+    
     try {
-      // Fetch the blank Form 2848 template
+      // Fetch the blank Form 2848 template with better error handling
+      console.log('Fetching Form 2848 template...');
       const formUrl = '/api/erc-protest/templates/f2848.pdf';
-      const formBytes = await fetch(formUrl).then(res => res.arrayBuffer());
+      const response = await fetch(formUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch template: ${response.status} ${response.statusText}`);
+      }
+      
+      const formBytes = await response.arrayBuffer();
+      console.log(`Received ${formBytes.byteLength} bytes of PDF data`);
       
       // Load the PDF document
-      const pdfDoc = await PDFDocument.load(formBytes);
+      console.log('Loading PDF document...');
+      const pdfDoc = await PDFDocument.load(formBytes, {
+        ignoreEncryption: true,
+      });
+      console.log('PDF loaded successfully');
+      
       const form = pdfDoc.getForm();
       
       // Fill in the taxpayer information
+      console.log('Filling in form fields...');
       const taxpayerNameField = form.getTextField('topmostSubform[0].Page1[0].f1_1[0]');
       taxpayerNameField.setText(formData.businessName || '');
       
@@ -48,6 +67,7 @@ const SimpleForm2848Generator = ({ formData }) => {
       }
       
       // Save the filled form
+      console.log('Saving filled form...');
       const pdfBytes = await pdfDoc.save();
       
       // Create a Blob and trigger download
@@ -61,10 +81,12 @@ const SimpleForm2848Generator = ({ formData }) => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      console.log('Download initiated');
       
     } catch (err) {
       console.error('Error generating Form 2848:', err);
-      alert('Failed to generate Form 2848. Please try again.');
+      setError(`Error generating Form 2848: ${err.message}`);
+      setShowError(true);
     } finally {
       setLoading(false);
     }
@@ -81,8 +103,22 @@ const SimpleForm2848Generator = ({ formData }) => {
       >
         {loading ? 'Generating...' : 'Download Form 2848'}
       </Button>
+      
+      <Snackbar 
+        open={showError} 
+        autoHideDuration={6000} 
+        onClose={() => setShowError(false)}
+      >
+        <Alert 
+          onClose={() => setShowError(false)} 
+          severity="error" 
+          variant="filled"
+        >
+          {error}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
 
-export default SimpleForm2848Generator;
+export default Form2848Generator;

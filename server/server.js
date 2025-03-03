@@ -10,7 +10,7 @@ const fs = require('fs').promises;
 const ercProtestRouter = require('./routes/erc-protest');
 const adminRouter = require('./routes/admin');
 const chatgptScraperRouter = require('./routes/chatgpt-scraper');
-// We'll use static middleware instead of a router for forms
+const formsRouter = require('./routes/forms'); // Added missing import
 const { authenticateUser, adminOnly } = require('./middleware/auth');
 const googleSheetsService = require('./services/googleSheetsService');
 const googleDriveService = require('./services/googleDriveService');
@@ -48,7 +48,7 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 app.use('/api/erc-protest', ercProtestRouter);
 app.use('/api/erc-protest/admin', authenticateUser, adminOnly, adminRouter);
 app.use('/api/erc-protest/chatgpt', chatgptScraperRouter);
-app.use('/api/erc-protest/forms', formsRouter); // Add the new forms router
+app.use('/api/erc-protest/forms', formsRouter);
 
 // Debug route to check if the server is working
 app.get('/api/debug', (req, res) => {
@@ -97,9 +97,17 @@ async function initializeServices() {
   }
 }
 
-// Front-end route - this should be the last route
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+// COMMENTED OUT: Front-end catch-all route to prevent 404 errors during testing
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+// });
+
+// Add a more helpful 404 handler instead
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found. If you need React routes, build the client first with: cd client && npm run build'
+  });
 });
 
 // Start the server
