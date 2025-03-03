@@ -84,3 +84,27 @@ export const generateERCProtestLetter = async (letterData) => {
     }
   }
 };
+
+export const getSubmissionStatus = async (trackingId) => {
+  try {
+    const response = await axios.get(`${API_URL}/erc-protest/status/${trackingId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching submission status:', error);
+    throw error;
+  }
+};
+
+export const updateSubmissionStatus = async (trackingId, status, paths = {}) => {
+  try {
+    const response = await axios.post(`${API_URL}/erc-protest/update-status`, {
+      trackingId,
+      status,
+      ...paths
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating submission status:', error);
+    throw error;
+  }
+};

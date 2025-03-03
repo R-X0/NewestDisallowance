@@ -1,41 +1,15 @@
+// server/routes/admin.js
 const express = require('express');
 const path = require('path');
 const fs = require('fs').promises;
-const { google } = require('googleapis');
-
 const router = express.Router();
+const googleSheetsService = require('../services/googleSheetsService');
 
 // Get all submissions
 router.get('/submissions', async (req, res) => {
   try {
     // Get data from Google Sheets (admin dashboard)
-    const auth = new google.auth.GoogleAuth({
-      keyFile: path.join(__dirname, '../config/google-credentials.json'),
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-    
-    const client = await auth.getClient();
-    const sheets = google.sheets({ version: 'v4', auth: client });
-    
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-    
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: 'ERC Tracking!A2:H',
-    });
-    
-    const rows = response.data.values || [];
-    
-    const submissions = rows.map(row => ({
-      trackingId: row[0] || '',
-      businessName: row[1] || '',
-      timePeriod: row[2] || '',
-      status: row[3] || '',
-      timestamp: row[4] || '',
-      protestLetterPath: row[5] || '',
-      zipPath: row[6] || '',
-      trackingNumber: row[7] || ''
-    }));
+    const submissions = await googleSheetsService.getAllSubmissions();
     
     res.status(200).json({
       success: true,
@@ -63,54 +37,29 @@ router.post('/update-tracking', async (req, res) => {
     }
     
     // Update Google Sheets
-    const auth = new google.auth.GoogleAuth({
-      keyFile: path.join(__dirname, '../config/google-credentials.json'),
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    await googleSheetsService.updateSubmission(submissionId, {
+      status: status || 'mailed',
+      trackingNumber,
+      timestamp: new Date().toISOString()
     });
     
-    const client = await auth.getClient();
-    const sheets = google.sheets({ version: 'v4', auth: client });
-    
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-    
-    // Find the row with the matching tracking ID
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: 'ERC Tracking!A2:A',
-    });
-    
-    const rows = response.data.values || [];
-    let rowIndex = -1;
-    
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i][0] === submissionId) {
-        rowIndex = i + 2; // +2 because we start at row 2 and array index starts at 0
-        break;
-      }
+    // Also update the local file if it exists
+    try {
+      const submissionPath = path.join(__dirname, `../data/ERC_Disallowances/${submissionId}/submission_info.json`);
+      const submissionData = await fs.readFile(submissionPath, 'utf8');
+      const submissionInfo = JSON.parse(submissionData);
+      
+      submissionInfo.status = status || 'mailed';
+      submissionInfo.trackingNumber = trackingNumber;
+      submissionInfo.timestamp = new Date().toISOString();
+      
+      await fs.writeFile(
+        submissionPath,
+        JSON.stringify(submissionInfo, null, 2)
+      );
+    } catch (fileErr) {
+      console.log(`Local file for ${submissionId} not found, skipping update`);
     }
-    
-    if (rowIndex === -1) {
-      return res.status(404).json({
-        success: false,
-        message: 'Submission not found'
-      });
-    }
-    
-    // Update tracking number and status
-    await sheets.spreadsheets.values.update({
-      spreadsheetId,
-      range: `ERC Tracking!D${rowIndex}:H${rowIndex}`,
-      valueInputOption: 'RAW',
-      resource: {
-        values: [[
-          status || 'mailed',
-          new Date().toISOString(),
-          '', // Keep existing path
-          '', // Keep existing path
-          trackingNumber
-        ]]
-      },
-    });
     
     res.status(200).json({
       success: true,

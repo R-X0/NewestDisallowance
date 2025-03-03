@@ -60,7 +60,8 @@ const ERCProtestLetterGenerator = ({ formData, disallowanceInfo }) => {
         location: formData.location,
         timePeriod: formData.timePeriod,
         chatGptLink: chatGptLink,
-        businessType: businessType
+        businessType: businessType,
+        trackingId: formData.trackingId || '' // Pass tracking ID if available
       };
       
       // Update processing steps

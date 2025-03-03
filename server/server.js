@@ -11,6 +11,7 @@ const ercProtestRouter = require('./routes/erc-protest');
 const adminRouter = require('./routes/admin');
 const chatgptScraperRouter = require('./routes/chatgpt-scraper');
 const { authenticateUser, adminOnly } = require('./middleware/auth');
+const googleSheetsService = require('./services/googleSheetsService');
 
 // Load environment variables
 dotenv.config();
@@ -70,6 +71,18 @@ async function createDirectories() {
   }
 }
 
+// Initialize Google Sheets service
+async function initializeServices() {
+  try {
+    await googleSheetsService.initialize();
+    console.log('Google Sheets service initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize Google Sheets service:', error);
+    console.log('Make sure you have a valid google-credentials.json file in the config directory');
+    console.log('The app will continue, but Google Sheets integration may not work');
+  }
+}
+
 // Front-end route - this should be the last route
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
@@ -79,6 +92,7 @@ app.get('*', (req, res) => {
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   await createDirectories();
+  await initializeServices();
   console.log(`API endpoints:
   - /api/erc-protest
   - /api/erc-protest/admin

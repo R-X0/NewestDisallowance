@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Container, Box, TextField, MenuItem, Button, 
   Typography, Paper, Grid, Divider, CircularProgress,
-  Stepper, Step, StepLabel, StepContent, Alert
+  Stepper, Step, StepLabel, StepContent, Alert, Chip
 } from '@mui/material';
 import { FileUpload } from '@mui/icons-material';
 import COVIDPromptGenerator from './COVIDPromptGenerator';
@@ -79,6 +79,26 @@ const ERCProtestForm = () => {
           message: 'Submission successful. Processing has begun.',
           data: result
         });
+
+        // Check if submission was added to Google Sheets after a short delay
+        setTimeout(async () => {
+          try {
+            const statusResponse = await fetch(`/api/erc-protest/status/${result.trackingId}`);
+            const statusData = await statusResponse.json();
+            
+            if (statusResponse.ok && statusData.success) {
+              console.log('Google Sheets status:', statusData.status);
+              setSubmissionStatus(prev => ({
+                ...prev,
+                googleSheetsStatus: statusData.status,
+                message: prev.message + ' Added to admin tracking dashboard.'
+              }));
+            }
+          } catch (statusError) {
+            console.error('Error checking Google Sheets status:', statusError);
+          }
+        }, 2000);
+        
         setActiveStep(2); // Move to the final step
       } else {
         throw new Error(result.message || 'Submission failed');
@@ -305,7 +325,10 @@ const ERCProtestForm = () => {
                 
                 {/* Add the Protest Letter Generator component */}
                 <ERCProtestLetterGenerator 
-                  formData={formData}
+                  formData={{
+                    ...formData,
+                    trackingId: submissionStatus?.data?.trackingId
+                  }}
                 />
               </Box>
               
@@ -347,6 +370,16 @@ const ERCProtestForm = () => {
                   {submissionStatus.success && submissionStatus.data?.trackingId && (
                     <Typography variant="body2" mt={1}>
                       Tracking ID: {submissionStatus.data.trackingId}
+                    </Typography>
+                  )}
+                  
+                  {submissionStatus.googleSheetsStatus && (
+                    <Typography variant="body2" mt={1}>
+                      Admin Dashboard Status: <Chip 
+                        size="small" 
+                        color="primary"
+                        label={submissionStatus.googleSheetsStatus} 
+                      />
                     </Typography>
                   )}
                   

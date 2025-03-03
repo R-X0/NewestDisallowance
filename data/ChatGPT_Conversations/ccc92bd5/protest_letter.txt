@@ -1,0 +1,83 @@
+3/3/2025
+Internal Revenue Service
+Ogden, UT 84201
+
+EIN: 343-3-4234
+Taxpayer Name: West Coast Marble
+RE: Formal Protest to Letter 105 – ERC Disallowance for Q4
+Tax Period: 4th Quarter 2020 (202010)
+Claim Amount: $[Insert Amount]
+
+Dear Appeals Officer,
+
+We write in response to the IRS notice disallowing West Coast Marble’s Employee Retention Credit (ERC) claim for the fourth quarter of 2020. The disallowance appears to rely on the assertion that “no government orders were in effect” during October through December 2020 that caused a suspension or reduction in our operations. We respectfully disagree. Multiple federal, state, county, and city government orders were active during Q4 2020 and imposed COVID‑19–related restrictions and requirements that directly and indirectly limited West Coast Marble’s normal business operations. In this letter, we provide a detailed timeline of the relevant orders, demonstrate their impact on our operations localized in Camarillo, CA, and cite applicable IRS guidance showing why West Coast Marble qualifies for the ERC under the “partial suspension” provisions.
+
+Timeline of COVID‑19 Government Orders Active in Q4 2020
+
+Despite adjustments and gradual reopenings during 2020, several emergency orders remained in force during Q4 2020. These orders – issued at the federal, state, county, and city levels – created a regulatory environment that forced our business to modify operations, adhere to strict capacity limitations, and implement additional safety protocols. Below is a chronological timeline of key orders applicable to our operations in Camarillo, CA:
+
+• Federal – National Emergency Concerning COVID‑19  
+  • Proclamation 9994, declared March 13, 2020, remained in effect during Q4 2020, thereby empowering subsequent state and local public health orders.  
+  • Link: https://bidenwhitehouse.archives.gov/briefing-room/presidential-actions/2021/02/24/notice-on-the-continuation-of-the-national-emergency-concerning-the-coronavirus-disease-2019-covid-19-pandemic/#:~:text=On%20March%2013,...
+
+• California State – “Blueprint for a Safer Economy” Framework  
+  • Announced August 28, 2020 and effective August 31, 2020, this tier‑based system continued to significantly restrict indoor business operations in high‑risk areas well into Q4 2020, particularly in counties initially assigned to the Purple tier.  
+  • Link: https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/COVID-19/8-28-20_Order-Plan-Reducing-COVID19-Adjusting-Permitted-Sectors-Signed.pdf#:~:text=to%20the%20end%20of%20the,...
+
+• California State – Regional Stay‑at‑Home Order  
+  • Announced on December 3, 2020 and effective December 6, 2020 (in parts of Southern California), this order was implemented in response to worsening pandemic conditions and ICU capacity concerns, resulting in further operational limitations for non‑essential businesses.  
+  • Link: (Refer to the official state documentation and press releases on Regional Stay‑at‑Home measures)
+
+• Ventura County – “Red Tier” Reopening Order  
+  • Issued on October 6, 2020, Ventura County’s “Red Tier” order allowed limited resumption of operations under strict guidelines but continued to mandate capacity limits, social distancing requirements, and strict adherence to health and safety protocols for businesses in Camarillo.  
+  • Link: (See citations provided in county directives, e.g., Ventura County Health Officer documents available online)
+
+• City of Camarillo – Local Emergency Proclamation and Related Orders  
+  • Under EOC Director Order No. 20‑1 (ratified March 13, 2020), the City of Camarillo declared a local emergency that remained effective throughout 2020. This proclamation, along with supplementary measures (such as the Camarillo Resolution No. 2020‑63 allowing temporary outdoor operations), had implications for businesses by imposing restrictions on capacity and mandating additional safety protocols.  
+  • Link: (For example, see Camarillo City official resolution at https://cms7files.revize.com/camarilloca/Departments/Community%20Development/Applications/Reso%202020-63.pdf#:~:text=spread%20of%20COVID...)
+
+Summary of Relevant Orders and Operational Impact on West Coast Marble
+
+For ease of reference, we provide the following summary of key COVID‑19 government orders that impacted our business during Q4 2020:
+
+Order           Date Enacted    Date Rescinded     Operational Impact on West Coast Marble  
+---------------------------------------------------------------------------------------------------------------
+U.S. National Emergency (COVID‑19) Mar. 13, 2020  Active in Q4 2020  
+  • Enabled state and local agencies to issue binding COVID‑19 directives affecting business operations.  
+  • Link: https://bidenwhitehouse.archives.gov/briefing-room/presidential-actions/2021/02/24/notice-on-the-continuation-of-the-national-emergency-concerning-the-coronavirus-disease-2019-covid-19-pandemic/#:~:text=On%20March%2013,...
+
+“Blueprint for a Safer Economy” Framework Aug. 31, 2020  Active in Q4 2020  
+  • Imposed a tier‑based system which, in many parts of Ventura County including Camarillo, mandated strict indoor capacity reductions and operational modifications.  
+  • Link: https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/COVID-19/8-28-20_Order-Plan-Reducing-COVID19-Adjusting-Permitted-Sectors-Signed.pdf#:~:text=to%20the%20end%20of%20the,...
+
+Regional Stay‑at‑Home Order Dec. 6, 2020  Effective beginning in December 2020  
+  • Required non‑essential businesses to scale back physical operations, thereby limiting West Coast Marble’s ability to operate at full capacity.  
+  • Link: (Refer to state-issued Regional Stay‑at‑Home Order documentation)
+
+Ventura County “Red Tier” Reopening Order Oct. 6, 2020  Active into Q4 2020  
+  • Imposed ongoing restrictions such as reduced operating capacity and enforced health protocols which directly affected our business operations and output.  
+  • Link: (See Ventura County official orders available online)
+
+City of Camarillo Local Emergency Proclamation Mar. 13, 2020  Effective throughout 2020  
+  • Maintained additional local mandates including capacity restrictions and enhanced safety procedures that West Coast Marble had to adhere to during Q4 2020.  
+  • Link: https://cms7files.revize.com/camarilloca/Departments/Community%20Development/Applications/Reso%202020-63.pdf#:~:text=spread%20of%20COVID...
+
+As detailed above, the combination of these orders required West Coast Marble to modify our operations significantly. While our business remained open, we experienced a partial suspension of normal operations as we complied with mandates on capacity, safety, and operational modifications. These measures reduced our productivity and output by more than a nominal amount, directly qualifying our claim under the ERC’s “partial suspension” criteria as explained in IRS guidance (IRS Notices 2021-20, 2021-23, and 2021-49).
+
+Conclusion and Request
+
+Based on the detailed timeline and analysis provided above, we respectfully request that the IRS reconsider and reverse the disallowance of our fourth quarter 2020 ERC claim. The COVID‑19 government orders enumerated herein, including the Federal National Emergency, California’s “Blueprint for a Safer Economy” and Regional Stay‑at‑Home Order, as well as Ventura County and City of Camarillo orders, collectively imposed conditions that forced a partial suspension of West Coast Marble’s operations. We have maintained full compliance with every directive, and as such, our claim meets the statutory requirements for ERC eligibility. We have enclosed supporting documentation including copies and excerpts of the relevant orders, along with an analysis demonstrating the operational impact on our business.
+
+Attestation:
+“Under penalties of perjury, I declare that I submitted the protest and accompanying documents, and to the best of my personal knowledge and belief, the information stated in the protest and accompanying documents is true, correct, and complete.”
+
+Sincerely,
+
+Jordan Smith, EA  
+Authorized Representative for  
+West Coast Marble
+
+Enclosures:  
+• Copies of Government Orders and Relevant Excerpts  
+• ERC Calculations for Q4 2020  
+• IRS Notices 2021-20, 2021-23, and 2021-49 (for reference)

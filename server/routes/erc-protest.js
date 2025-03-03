@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
-const { google } = require('googleapis');
+const googleSheetsService = require('../services/googleSheetsService');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -67,31 +67,12 @@ router.post('/submit', upload.array('disallowanceNotices', 5), async (req, res) 
     
     // Add to Google Sheet for tracking
     try {
-      const auth = new google.auth.GoogleAuth({
-        keyFile: path.join(__dirname, '../config/google-credentials.json'),
-        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-      });
-      
-      const client = await auth.getClient();
-      const sheets = google.sheets({ version: 'v4', auth: client });
-      
-      const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-      
-      await sheets.spreadsheets.values.append({
-        spreadsheetId,
-        range: 'ERC Tracking!A:D',
-        valueInputOption: 'RAW',
-        resource: {
-          values: [
-            [
-              trackingId,
-              businessName,
-              timePeriod,
-              'Gathering data',
-              new Date().toISOString()
-            ]
-          ]
-        }
+      await googleSheetsService.addSubmission({
+        trackingId,
+        businessName,
+        timePeriod,
+        status: 'Gathering data',
+        timestamp: new Date().toISOString()
       });
       
       console.log('Added submission to Google Sheet');
@@ -143,31 +124,16 @@ router.get('/status/:trackingId', async (req, res) => {
     } catch (err) {
       // If file doesn't exist, check Google Sheet
       try {
-        const auth = new google.auth.GoogleAuth({
-          keyFile: path.join(__dirname, '../config/google-credentials.json'),
-          scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-        });
+        const submissions = await googleSheetsService.getAllSubmissions();
+        const submission = submissions.find(s => s.trackingId === trackingId);
         
-        const client = await auth.getClient();
-        const sheets = google.sheets({ version: 'v4', auth: client });
-        
-        const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-        
-        const response = await sheets.spreadsheets.values.get({
-          spreadsheetId,
-          range: 'ERC Tracking!A:E',
-        });
-        
-        const rows = response.data.values;
-        const submissionRow = rows.find(row => row[0] === trackingId);
-        
-        if (submissionRow) {
+        if (submission) {
           res.status(200).json({
             success: true,
-            status: submissionRow[3],
-            timestamp: submissionRow[4],
-            businessName: submissionRow[1],
-            timePeriod: submissionRow[2]
+            status: submission.status,
+            timestamp: submission.timestamp,
+            businessName: submission.businessName,
+            timePeriod: submission.timePeriod
           });
         } else {
           res.status(404).json({
@@ -188,6 +154,72 @@ router.get('/status/:trackingId', async (req, res) => {
     res.status(500).json({
       success: false,
       message: `Error fetching submission status: ${error.message}`
+    });
+  }
+});
+
+// Update submission status (for testing or API usage)
+router.post('/update-status', async (req, res) => {
+  try {
+    const { trackingId, status, protestLetterPath, zipPath } = req.body;
+    
+    if (!trackingId || !status) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tracking ID and status are required'
+      });
+    }
+    
+    // Update the local file if it exists
+    try {
+      const submissionPath = path.join(__dirname, `../data/ERC_Disallowances/${trackingId}/submission_info.json`);
+      const submissionData = await fs.readFile(submissionPath, 'utf8');
+      const submissionInfo = JSON.parse(submissionData);
+      
+      submissionInfo.status = status;
+      submissionInfo.timestamp = new Date().toISOString();
+      
+      if (protestLetterPath) {
+        submissionInfo.protestLetterPath = protestLetterPath;
+      }
+      
+      if (zipPath) {
+        submissionInfo.zipPath = zipPath;
+      }
+      
+      await fs.writeFile(
+        submissionPath,
+        JSON.stringify(submissionInfo, null, 2)
+      );
+    } catch (err) {
+      console.log(`Local file for ${trackingId} not found, skipping update`);
+    }
+    
+    // Update Google Sheet
+    try {
+      await googleSheetsService.updateSubmission(trackingId, {
+        status,
+        protestLetterPath,
+        zipPath,
+        timestamp: new Date().toISOString()
+      });
+      
+      res.status(200).json({
+        success: true,
+        message: 'Status updated successfully'
+      });
+    } catch (sheetError) {
+      console.error('Error updating Google Sheet:', sheetError);
+      res.status(500).json({
+        success: false,
+        message: `Error updating status: ${sheetError.message}`
+      });
+    }
+  } catch (error) {
+    console.error('Error updating submission status:', error);
+    res.status(500).json({
+      success: false,
+      message: `Error updating status: ${error.message}`
     });
   }
 });
