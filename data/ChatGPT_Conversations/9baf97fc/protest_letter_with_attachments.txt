@@ -1,0 +1,82 @@
+3/3/2025
+Internal Revenue Service
+Ogden, UT 84201
+
+EIN: 32-432425
+Taxpayer Name: West Coast
+RE: Formal Protest to Letter 105 – ERC Disallowance for Q3 2020
+Tax Period: 3rd Quarter 2020 (2020Q3)
+Claim Amount: $150,000
+
+Dear Appeals Officer,
+
+We write in response to the IRS notice disallowing West Coast’s Employee Retention Credit (ERC) claim for the third quarter of 2020. The disallowance is based on the assertion that “no government orders were in effect” between July 1 and September 30, 2020 that caused a suspension or significant curtailment of our operations. We respectfully disagree. Multiple federal, state, county, and city government orders were in effect during Q3 2020 in Camarillo, California, and these orders imposed COVID-19–related restrictions that forced us to modify or limit our usual business operations. In the following pages, we provide a detailed timeline of the relevant government orders, describe their impact on our activities, and cite the applicable IRS guidance that supports our qualification for the ERC under the “partial suspension” provisions.
+
+Timeline of COVID-19 Government Orders Active in Q3 2020
+
+During the third quarter of 2020, West Coast was subject to a complex framework of governmental directives that directly affected our business operations. Although some restrictions had eased compared to the early months of the pandemic, orders at the federal, California state, Ventura County, and City of Camarillo levels continued to impact our capacity to operate normally. Below is a chronological overview of key orders in effect during Q3 2020:
+
+• Federal – National Emergency Concerning COVID-19:  
+  – Proclamation 9994, declared on March 13, 2020 (continuing through Q3 2020).  
+  – This national emergency (see details at [See Attachment 1: attachment_1_https___bidenwhitehouse_archiv.pdf]) established the legal framework that allowed subsequent state and local COVID-19 measures to be issued. Although the proclamation did not order business closures directly, it provided the underpinning for more restrictive health mandates that affected our operations in Q3 2020.
+
+• California State Orders:  
+  – State of Emergency Proclamation – California COVID-19 State of Emergency, enacted March 4, 2020 (active into Q3 2020).  
+    Details available at: [See Attachment 2: attachment_2_https___www_gov_ca_gov_2020_03.pdf]  
+  – Executive Order N-33-20 – Statewide “Stay-at-Home” Order, issued March 19, 2020 and in effect during Q3 2020.  
+    Reference: [See Attachment 3: attachment_3_https___www_gov_ca_gov_wp_cont.pdf]  
+  These orders mandated the closure or modification of non-essential business operations and imposed strict social distancing protocols. Even by Q3 2020, although some sectors had begun to reopen, many businesses, including West Coast, continued to operate under reduced capacity and enhanced safety guidelines.
+
+• Ventura County Orders:  
+  – Ventura County “Stay Well at Home” Order, effective March 20, 2020 and modified over time for local conditions (details available via Ventura County documentation).  
+  – Additional public health orders issued in May and July 2020 repeatedly adjusted operational guidelines that, in Q3 2020, resulted in uncertainty and limitations on in-person operations.  
+  The county mandates directly impacted West Coast by restricting occupancy, enforcing social distancing, and compelling us to revise many of our standard operating procedures.
+
+• City of Camarillo Orders:  
+  – Camarillo Local Emergency Proclamation (EOC Director Order No. 20-1), enacted March 13, 2020, which set a localized emergency framework and stressed the importance of public safety measures.  
+  – Camarillo Eviction Moratorium Orders (EOC Director Order No. 20-2) provided temporary relief to businesses but underscored the economic uncertainty that many faced.  
+  – Camarillo Resolution No. 2020-63 – Temporary Outdoor Dining Program (circa June 10, 2020) allowed certain sectors to operate under outdoor restrictions.  
+  These local orders contributed to an operational “yo-yo” effect where West Coast was forced to adjust operations repeatedly throughout 2020. Even by Q3, reduced capacity and altered operational practices remained in place as a result of these mandates.
+
+Summary of Relevant Orders and Operational Impact on West Coast
+
+The table below summarizes each pertinent government order that affected West Coast during Q3 2020, along with its effective dates and the specific impact on our business operations:
+
+Order                  Date Enacted      Date Rescinded       Impact on West Coast  
+------------------------------------------------------------------------------------------------------------------
+U.S. National Emergency (Proclamation 9994) Mar. 13, 2020  Active in Q3 2020  Provided the authority for subsequent restrictive measures that indirectly affected our operations.  
+California State of Emergency Proclamation Mar. 4, 2020    Active in Q3 2020  Empowered the state to issue lockdowns and reopening protocols, forcing West Coast to operate with strict safety guidelines.  
+Executive Order N-33-20 (Stay-at-Home Order) Mar. 19, 2020  Active in Q3 2020  Mandated closures or modifications for non-essential operations; even during partial reopening, capacity restrictions and physical distancing rules remained.  
+Ventura County “Stay Well at Home” Order Mar. 20, 2020   Modified over time  Enforced local restrictions that limited in-person business functions and required ongoing compliance with health guidelines.  
+Camarillo Local Emergency Proclamation (EOC Director Order No. 20-1) Mar. 13, 2020  Active in Q3 2020  Heightened local emergency measures and reinforced state and county protocols impacting customer interactions and operating hours.  
+Camarillo Eviction Moratorium and Temporary Outdoor Dining Resolution Mar.–June 2020    Ordered modifications such as reduced indoor capacities and shifted economic activities outdoors, directly influencing our service delivery and revenue cycles.
+
+Each of these orders contributed to a significant curtailment of West Coast’s normal business operations. We were forced to reduce in-person activities, limit occupancy, and frequently alter our operating practices—all of which diminished our capacity to conduct business as usual.
+
+ERC Partial Suspension Qualification – IRS Guidance and Analysis
+
+Under the CARES Act (as amended), an employer is eligible for the ERC if it experiences either a significant decline in gross receipts or a full or partial suspension of operations due to governmental orders. West Coast’s ERC claim for Q3 2020 is based on the “partial suspension” test. IRS guidance (including IRS Notices 2020-20 and its subsequent amendments) confirms that a business is considered to have a partial suspension if government orders cause limitations that affect more than a nominal portion of its operations.
+
+In our case, the combined effect of federal, state, county, and local orders in Q3 2020 led to:
+  – Consistent capacity and occupancy limitations due to social distancing and safety protocols.
+  – Frequent shifting between operational states (from partial reopening to restrictions) as orders were modified in response to local COVID-19 case trends.
+  – A substantial reduction in our ability to serve customers and generate revenue at pre-pandemic levels.
+These impacts clearly meet the “more than nominal” threshold as established by IRS guidance, thereby supporting our qualification for the ERC under the partial suspension provisions.
+
+Conclusion and Request
+
+Based on the orders detailed above and their tangible impact on our operations, West Coast qualifies for the Employee Retention Credit for Q3 2020. The government-mandated restrictions in force during that period directly curtailed our ability to conduct normal business activities—even though we remained open in a reduced capacity. We respectfully request that the IRS reconsider and reverse the disallowance of our Q3 2020 ERC claim. Enclosed are the relevant government orders, documentation of their impact on our operations, and calculations demonstrating the over-10% impact on our business activities consistent with IRS requirements.
+
+Attestation: “Under penalties of perjury, I declare that I submitted the protest and accompanying documents, and to the best of my personal knowledge and belief, the information stated in the protest and accompanying documents is true, correct, and complete.”
+
+Sincerely,
+
+[Signature]
+
+Jordan Martinez, EA  
+Authorized Representative for West Coast
+
+Enclosures:  
+• Copies of Relevant Government Orders and Detailed Excerpts  
+• ERC Calculations for Q3 2020  
+• IRS Notices and Guidance Documents (including IRS Notices 2020-20 and related authority)

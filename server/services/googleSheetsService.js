@@ -6,11 +6,18 @@ class GoogleSheetsService {
   constructor() {
     this.initialized = false;
     this.sheets = null;
-    this.spreadsheetId = process.env.GOOGLE_SHEET_ID;
+    
+    // TEMPORARY FIX: Hardcoded spreadsheet ID
+    // In production, this should come from process.env.GOOGLE_SHEET_ID
+    this.spreadsheetId = '13zhAc2uKW5DOyW_LJuDiUxA7gV3rD_9yLFTveW9aRtM';
+    
+    console.log('GoogleSheetsService constructor - Using spreadsheetId:', this.spreadsheetId);
   }
 
   async initialize() {
     try {
+      console.log('Initializing Google Sheets service...');
+      
       const auth = new google.auth.GoogleAuth({
         keyFile: path.join(__dirname, '../config/google-credentials.json'),
         scopes: ['https://www.googleapis.com/auth/spreadsheets'],
@@ -18,8 +25,15 @@ class GoogleSheetsService {
       
       const client = await auth.getClient();
       this.sheets = google.sheets({ version: 'v4', auth: client });
+      
+      // Double-check spreadsheet ID is set
+      if (!this.spreadsheetId) {
+        console.log('No spreadsheetId found in env vars, using hardcoded value');
+        this.spreadsheetId = '13zhAc2uKW5DOyW_LJuDiUxA7gV3rD_9yLFTveW9aRtM';
+      }
+      
       this.initialized = true;
-      console.log('Google Sheets service initialized');
+      console.log('Google Sheets service initialized successfully with spreadsheetId:', this.spreadsheetId);
     } catch (error) {
       console.error('Failed to initialize Google Sheets service:', error);
       throw error;
@@ -35,9 +49,7 @@ class GoogleSheetsService {
   async addSubmission(submissionData) {
     await this.ensureInitialized();
     
-    if (!this.spreadsheetId) {
-      throw new Error('GOOGLE_SHEET_ID environment variable is not set');
-    }
+    // Removed check for spreadsheetId since we're hardcoding it now
 
     const {
       trackingId,
@@ -51,6 +63,7 @@ class GoogleSheetsService {
     } = submissionData;
 
     try {
+      console.log('Adding submission to Google Sheet with ID:', this.spreadsheetId);
       const response = await this.sheets.spreadsheets.values.append({
         spreadsheetId: this.spreadsheetId,
         range: 'ERC Tracking!A:H',
@@ -78,6 +91,7 @@ class GoogleSheetsService {
       
       // Retry once with sheet initialization
       try {
+        console.log('Retrying with sheet initialization...');
         await this.initialize();
         
         const response = await this.sheets.spreadsheets.values.append({
@@ -112,9 +126,7 @@ class GoogleSheetsService {
   async updateSubmission(trackingId, updateData) {
     await this.ensureInitialized();
     
-    if (!this.spreadsheetId) {
-      throw new Error('GOOGLE_SHEET_ID environment variable is not set');
-    }
+    // Removed check for spreadsheetId since we're hardcoding it now
 
     try {
       // First, find the row with the matching tracking ID
@@ -205,9 +217,7 @@ class GoogleSheetsService {
   async getAllSubmissions() {
     await this.ensureInitialized();
     
-    if (!this.spreadsheetId) {
-      throw new Error('GOOGLE_SHEET_ID environment variable is not set');
-    }
+    // Removed check for spreadsheetId since we're hardcoding it now
 
     try {
       const response = await this.sheets.spreadsheets.values.get({
