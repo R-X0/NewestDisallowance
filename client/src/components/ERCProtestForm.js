@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { 
   Container, Box, TextField, MenuItem, Button, 
   Typography, Paper, Grid, Divider, CircularProgress,
-  Stepper, Step, StepLabel, StepContent, Alert, Chip
+  Stepper, Step, StepLabel, StepContent, Alert, Chip,
+  RadioGroup, FormControlLabel, Radio, FormControl, FormLabel
 } from '@mui/material';
 import { FileUpload } from '@mui/icons-material';
 import COVIDPromptGenerator from './COVIDPromptGenerator';
@@ -17,7 +18,8 @@ const ERCProtestForm = () => {
     businessWebsite: '',
     naicsCode: '',
     timePeriod: '',
-    additionalInfo: ''
+    additionalInfo: '',
+    documentType: 'protestLetter' // Default document type
   });
   
   const [pdfFiles, setPdfFiles] = useState([]);
@@ -120,7 +122,8 @@ const ERCProtestForm = () => {
       formData.ein &&
       formData.location &&
       formData.naicsCode &&
-      formData.timePeriod
+      formData.timePeriod &&
+      formData.documentType  // Make sure document type is selected
     );
   };
   
@@ -261,6 +264,45 @@ const ERCProtestForm = () => {
                       placeholder="Any additional details about the business operation during COVID..."
                     />
                   </Grid>
+
+                  {/* Document Type Selection - ADDED THIS SECTION */}
+                  <Grid item xs={12}>
+                    <Typography variant="h6" gutterBottom>
+                      Document Type
+                    </Typography>
+                    <FormControl component="fieldset">
+                      <RadioGroup
+                        row
+                        name="documentType"
+                        value={formData.documentType}
+                        onChange={handleInputChange}
+                      >
+                        <FormControlLabel 
+                          value="protestLetter" 
+                          control={<Radio />} 
+                          label="ERC Protest Letter" 
+                        />
+                        <FormControlLabel 
+                          value="form886A" 
+                          control={<Radio />} 
+                          label="Form 886-A Substantiation" 
+                        />
+                      </RadioGroup>
+                    </FormControl>
+                    <Box mt={1}>
+                      <Alert severity="info">
+                        {formData.documentType === 'protestLetter' ? (
+                          <Typography variant="body2">
+                            Protest Letter: Use this option if you've received a disallowance letter from the IRS and need to formally protest the denial of your ERC claim.
+                          </Typography>
+                        ) : (
+                          <Typography variant="body2">
+                            Form 886-A: Use this option to proactively prepare a substantiation document for your ERC claim, detailing how government orders affected your business operations.
+                          </Typography>
+                        )}
+                      </Alert>
+                    </Box>
+                  </Grid>
                 </Grid>
                 
                 <Box sx={{ mb: 2, mt: 2 }}>
@@ -281,11 +323,14 @@ const ERCProtestForm = () => {
           <Step>
             <StepLabel>Generate Required Documents</StepLabel>
             <StepContent>
-              {/* COVID Prompt Generator */}
+              {/* COVID Prompt Generator - NOW PASSING DOCUMENT TYPE */}
               <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
                 COVID Orders Research Prompt
               </Typography>
-              <COVIDPromptGenerator formData={formData} />
+              <COVIDPromptGenerator 
+                formData={formData} 
+                documentType={formData.documentType}
+              />
               
               <Divider sx={{ my: 3 }} />
               
@@ -324,15 +369,16 @@ const ERCProtestForm = () => {
                 </Typography>
                 <Typography variant="body2" color="text.secondary" paragraph>
                   After completing your COVID orders research in ChatGPT, paste the ChatGPT conversation link below 
-                  to generate a formal protest letter or Form 886-A substantiation document that you can download and submit to the IRS.
+                  to generate a {formData.documentType === 'protestLetter' ? 'formal protest letter' : 'Form 886-A substantiation document'} that you can download and submit to the IRS.
                 </Typography>
                 
-                {/* Add the ERC Document Generator component */}
+                {/* Pass the document type to ERCDocumentGenerator */}
                 <ERCDocumentGenerator
                   formData={{
                     ...formData,
                     trackingId: submissionStatus?.data?.trackingId
                   }}
+                  initialTabValue={formData.documentType === 'protestLetter' ? 0 : 1}
                 />
               </Box>
               

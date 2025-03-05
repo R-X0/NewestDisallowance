@@ -39,7 +39,7 @@ const getNaicsDescription = (naicsCode) => {
   return naicsMap[naicsCode] || 'business';
 };
 
-const COVIDPromptGenerator = ({ formData }) => {
+const COVIDPromptGenerator = ({ formData, documentType = 'protestLetter' }) => {
   const [prompt, setPrompt] = useState('');
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -48,7 +48,7 @@ const COVIDPromptGenerator = ({ formData }) => {
     if (formData && Object.keys(formData).length > 0) {
       generatePrompt();
     }
-  }, [formData]);
+  }, [formData, documentType]); // Added documentType as dependency
   
   const generatePrompt = async () => {
     setGenerating(true);
@@ -69,8 +69,26 @@ const COVIDPromptGenerator = ({ formData }) => {
         }
       }
       
-      // Base template prompt that we want to customize
-      const basePrompt = `Please provide all state, city, and county COVID-related government orders, proclamations, and public health orders in place during 2020-2021 that would affect a "${businessType}" business located in ${city}, ${state}. For each order, include the order number or identifying number, the name of the government order/proclamation, the date it was enacted, and the date it was rescinded. If rescinded by subsequent orders, list subsequent order and dates. Additionally, please provide a detailed summary of 3-5 sentences for each order, explaining what the order entailed and how it specifically impacted a ${businessType} in ${formData.timePeriod}. Provide possible reasons how ${formData.timePeriod} Covid Orders would have affected the business in that quarter.`;
+      // Different base templates based on document type
+      let basePrompt = '';
+      
+      if (documentType === 'protestLetter' || formData.documentType === 'protestLetter') {
+        // Original protest letter prompt
+        basePrompt = `Please provide all state, city, and county COVID-related government orders, proclamations, and public health orders in place during 2020-2021 that would affect a "${businessType}" business located in ${city}, ${state}. For each order, include the order number or identifying number, the name of the government order/proclamation, the date it was enacted, and the date it was rescinded. If rescinded by subsequent orders, list subsequent order and dates. Additionally, please provide a detailed summary of 3-5 sentences for each order, explaining what the order entailed and how it specifically impacted a ${businessType} in ${formData.timePeriod}. Provide possible reasons how ${formData.timePeriod} Covid Orders would have affected the business in that quarter.`;
+      } else {
+        // Form 886-A substantiation prompt
+        basePrompt = `Review the following website for ${formData.businessName}. ${formData.businessWebsite}. Provide a general overview summary of the business operations. With the information found regarding the business operations, review all federal, state, city, county government orders that would have been in place and affected ${formData.businessName} located in ${city}, ${state} from 2Q 2020 – 3Q 2021. 
+
+For each order, provide:
+- Order name and number
+- Date enacted and date rescinded
+- A 2-3 sentence summary of the order
+- How the order specifically affected the ${businessType} in ${formData.timePeriod} and for what period of time (which quarters)
+
+With the information gained regarding operations and government orders in place, I need help creating a Form 886-A IRS response. Create a comprehensive document exclusively for ERC claims related to COVID-19. The document will provide detailed IRS-style explanations, prioritize official IRS and government sources and all federal, state, city, county applicable government orders that would have affected the business. 
+
+Any reference to the business should be notated as ${formData.businessName} and explain how this business qualified for ERC ${formData.timePeriod} due to full and partial shutdowns caused by government orders.`;
+      }
       
       // Use OpenAI API to generate a customized prompt based on the business info
       try {
@@ -82,7 +100,10 @@ const COVIDPromptGenerator = ({ formData }) => {
             state,
             quarter,
             year,
-            timePeriod: formData.timePeriod
+            timePeriod: formData.timePeriod,
+            documentType: documentType || formData.documentType, // Pass document type to API
+            businessName: formData.businessName, // Add business name for Form 886-A
+            businessWebsite: formData.businessWebsite // Add business website for Form 886-A
           }
         });
         
@@ -103,7 +124,11 @@ const COVIDPromptGenerator = ({ formData }) => {
       const { city, state } = extractCityState(formData.location || '');
       const businessType = getNaicsDescription(formData.naicsCode);
       
-      setPrompt(`Please provide all state, city, and county COVID-related government orders, proclamations, and public health orders in place during ${formData.timePeriod} that would affect a "${businessType}" business located in ${city}, ${state}. For each order, include the order number, the date it was enacted, and the date it was rescinded. Additionally, please explain how each order specifically impacted a ${businessType}.`);
+      if (documentType === 'protestLetter' || formData.documentType === 'protestLetter') {
+        setPrompt(`Please provide all state, city, and county COVID-related government orders, proclamations, and public health orders in place during ${formData.timePeriod} that would affect a "${businessType}" business located in ${city}, ${state}. For each order, include the order number, the date it was enacted, and the date it was rescinded. Additionally, please explain how each order specifically impacted a ${businessType}.`);
+      } else {
+        setPrompt(`Please research and provide a detailed analysis of how COVID-19 government orders affected ${formData.businessName}, a ${businessType} in ${city}, ${state}, during ${formData.timePeriod}. Include order numbers, dates, and specific impacts for Form 886-A substantiation.`);
+      }
     } finally {
       setGenerating(false);
     }
@@ -120,10 +145,18 @@ const COVIDPromptGenerator = ({ formData }) => {
       });
   };
   
+  // Get appropriate title based on document type
+  const getPromptTitle = () => {
+    const docType = documentType || formData.documentType;
+    return docType === 'protestLetter' 
+      ? 'COVID Orders Research Prompt for Protest Letter'
+      : 'COVID Orders Research Prompt for Form 886-A';
+  };
+  
   return (
     <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
       <Typography variant="h6" gutterBottom>
-        COVID Orders Research Prompt
+        {getPromptTitle()}
       </Typography>
       <Divider sx={{ mb: 2 }} />
       
@@ -138,7 +171,7 @@ const COVIDPromptGenerator = ({ formData }) => {
         <>
           <Box mb={2}>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              Use this prompt in GPT to research COVID-19 orders affecting your business:
+              Use this prompt in ChatGPT to research COVID-19 orders affecting your business:
             </Typography>
             <TextField
               fullWidth
@@ -154,7 +187,7 @@ const COVIDPromptGenerator = ({ formData }) => {
           </Box>
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="body2" color="text.secondary">
-              Copy this prompt and paste it into a GPT interface for detailed research
+              Copy this prompt and paste it into a ChatGPT interface for detailed research
             </Typography>
             <Button
               variant="contained"
