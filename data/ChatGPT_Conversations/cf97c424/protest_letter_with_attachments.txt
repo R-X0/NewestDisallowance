@@ -1,0 +1,103 @@
+03/03/2025
+Internal Revenue Service
+Ogden, UT 84201
+
+EIN: 34-5123156  
+Taxpayer Name: WCM&G  
+RE: Formal Protest to Letter 105 – ERC Disallowance for Q3  
+Tax Period: 3rd Quarter 2020 (Jul. 1 – Sep. 30, 2020)  
+Claim Amount: $150,000
+
+Dear Appeals Officer,
+
+We write in response to the IRS notice disallowing WCM&G’s Employee Retention Credit (ERC) claim for the third quarter of 2020. The disallowance is based on the assertion that no governmental orders were in effect between July 1 and September 30, 2020 that caused a suspension or partial limitation of our operations. We respectfully disagree. Multiple federal, state, county, and city orders – including those directly impacting businesses in Camarillo, California – imposed significant restrictions that affected our normal business activities during Q3 2020. In this letter, we provide a detailed timeline of the relevant government orders, explain their operational impact on WCM&G, and cite the supporting guidance demonstrating that our claim meets the “partial suspension” requirements for ERC purposes.
+
+Timeline of COVID-19 Government Orders Active in Q3 2020
+
+• Federal – National Emergency Proclamation (Proclamation 9994)  
+ – Date Enacted: March 13, 2020  
+ – Status in Q3 2020: Remained in effect throughout the pandemic  
+ – Summary: This proclamation declared a national emergency in response to COVID‑19, thereby establishing the framework under which federal agencies and subsequent state and local authorities could implement restrictions affecting business operations. Although it did not directly close businesses, its existence reinforced the urgency and legal basis for later limitations.  
+ – Source Link: [See Attachment 1: attachment_1_https___bidenwhitehouse_archiv.pdf]
+
+• California State Orders  
+ – State of Emergency Proclamation (“California COVID‑19 State of Emergency”)  
+   • Date Enacted: March 4, 2020  
+   • Status in Q3 2020: Remained active and formed the legal basis for subsequent health orders  
+   • Summary: Governor Newsom’s declaration empowered state agencies to issue orders impacting public gatherings and business operations, thereby indirectly limiting normal commercial activities throughout the pandemic.  
+   • Source Link: [See Attachment 2: attachment_2_https___www_gov_ca_gov_2020_03.pdf]
+
+ – Executive Order N‑33‑20 (“Statewide Stay‑at‑Home Order”)  
+   • Date Enacted: March 19, 2020; modified over time  
+   • Impact in Q3 2020: Although by summer certain sectors had been allowed limited reopening, the underlying restrictions (capacity limits, outdoor-only operations, and other modified protocols) continued to affect business operations in Camarillo  
+   • Summary: This order initially mandated a stay‑at‑home mandate for non‑essential businesses. Even into Q3 2020, businesses were still impacted by remnant restrictions derived from this order that limited indoor services and enforced capacity regulations.  
+   • Source Link: [See Attachment 3: attachment_3_https___www_gov_ca_gov_wp_cont.pdf]
+
+ – State Public Health Officer Order “Stage 2 Reopening” and the subsequent “Statewide Rollback of Reopening”  
+   • Key Dates: May 7, 2020 and July 13, 2020, respectively  
+   • Impact in Q3 2020: The May order permitted limited resume of activities (such as curbside pickup), yet by July 2020 a rollback re‑closed many indoor operations.  
+   • Summary: The rapid shifts in reopening and subsequent re‑closures created an environment of uncertainty and forced businesses like WCM&G to continually adjust operating procedures, ultimately resulting in a substantial curtailment of our commercial activities during the quarter.  
+   • Source Links:  
+    Stage 2 Order – [See Attachment 4: attachment_4_https___www_cdph_ca_gov_Progra.pdf]  
+    Rollback Order – https://www.cdph.ca.gov/Programs/CID/DCDC/CDPH%20Document%20Library/COVID-19/
+
+ – “Blueprint for a Safer Economy” Framework  
+   • Announced: August 28, 2020 (effective August 31, 2020)  
+   • Impact in Q3 2020: Ventura County (including Camarillo) was placed in the most restrictive tier, keeping many indoor operations limited or closed  
+   • Summary: This risk‐based, color‑coded framework continued to enforce limitations on business capacity and indoor activities, even as some outdoor operations were allowed, thereby directly limiting revenue-generating activities for businesses.  
+   • Source Link: [See Attachment 6: attachment_6_https___www_gov_ca_gov_2020_08.pdf]
+
+• Ventura County Orders  
+ – “Stay Well at Home” Order and July 2020 Local Rollback Order  
+   • Dates: Initially issued March 20, 2020 with updates in July 2020  
+   • Impact in Q3 2020: The local order enforced the closure of indoor operations such as gyms, personal services, and other non‑essential business activities.  
+   • Summary: These county directives, issued in direct response to state mandates, forced businesses to either temporarily shut their indoor operations or comply with strict capacity and social distancing rules.  
+   • Source Link: [See Attachment 7: attachment_7_https___www_ventura_org_.pdf] (search for the relevant Ventura County orders)
+
+ – Ventura County Eviction Moratorium  
+   • Effective: Extended protections into Q3 2020  
+   • Impact in Q3 2020: Although designed to protect tenants, this moratorium underscored the severe economic pressures on businesses operating under COVID‑19 restrictions.  
+   • Summary: For a business renting commercial space, such protections were necessary; however, the underlying revenue loss due to continuing restrictions still affected overall operations.  
+   • Source Link: [See Attachment 8: attachment_8_https___members_aagla_org_news.pdf]
+
+• City of Camarillo Orders  
+ – Local Emergency Proclamation (Camarillo)  
+   • Date Enacted: March 13, 2020  
+   • Impact in Q3 2020: The ongoing local emergency enabled Camarillo to maintain supplementary measures (such as park closures, adjustments in permit processes, and cancellation of public events) that indirectly reduced customer traffic for businesses.  
+   • Summary: The continuation of the local emergency provided the basis for additional municipal protocols that further limited normal business operations during the summer months.  
+   • Source Link: [See Attachment 9: attachment_9_https___www_camhealth_com_city.pdf]
+
+ – Camarillo Resolution No. 2020‑63 – Temporary Outdoor Dining Program  
+   • Adopted: Approximately June 10, 2020  
+   • Impact in Q3 2020: While this measure was designed to allow restaurants to operate outdoors in lieu of indoor dining, it also highlighted the limitations imposed on businesses by forcing a switch from traditional operations to less optimal, capacity‑restricted alternatives.  
+   • Summary: This resolution, along with other local measures (such as eviction moratoria for business tenants), underscores the regulatory environment that compelled businesses to modify, limit, and, in some cases, curtail routine operations.  
+   • Source Link: [See Attachment 10: attachment_10_https___cms7files_revize_com_c.pdf]
+
+Summary of Relevant Orders and Operational Impact on WCM&G
+
+The collection of federal, state, county, and city orders listed above directly impacted WCM&G’s operations in Q3 2020 by:  
+ • Enforcing social distancing and capacity limits with ongoing state and county mandates that reduced in‑person customer interactions and revenue opportunities.  
+ • Mandating modifications to business operations (such as shifting to outdoor service models under Camarillo Resolution No. 2020‑63) that were less efficient and negatively affected overall productivity.  
+ • Imposing repeated rollbacks – especially evident in the transition from limited reopening to a sudden statewide rollback in July 2020 – that forced abrupt operational scale‑backs and uncertainty impacting staffing and daily procedures.  
+ • Creating a regulatory environment where even partial adjustments (such as modifications required under the “Blueprint for a Safer Economy” framework) resulted in a more than nominal reduction in our usual business activities.
+
+ERC Partial Suspension Qualification – IRS Guidance and Analysis
+
+Under the relevant IRS guidance, an employer qualifies for the ERC if it experiences either a significant decline in gross receipts or a full or partial suspension of operations due to governmental orders. Although WCM&G is a for‑profit business and did not experience a complete shutdown, the cumulative effect of the COVID‑19 orders described above resulted in a significant partial suspension of our operations. IRS Notice 2021‑20 (and its analogs for 2020) explain that a partial suspension exists when government‑mandated restrictions affect more than a nominal portion of a business. In our case, the enforced capacity limitations, required operational changes, and the uncertainty induced by rapidly changing re‑openings directly curtailed our normal activities by well above the 10% threshold considered nominal. The orders referenced – with detailed descriptions and source links provided – clearly identify that government mandates were in effect during Q3 2020 and materially impacted our ability to conduct business as usual.
+
+Conclusion and Request
+
+Based on the facts and authorities presented, WCM&G qualifies for the Employee Retention Credit for Q3 2020 due to a partial suspension of our operations caused by COVID‑19 governmental orders. We respectfully request that the IRS reconsider and reverse the disallowance of our Q3 2020 ERC claim. The credit claimed is consistent with both the statutory framework and applicable IRS guidance given the extensive restrictions imposed on businesses in Camarillo during the period referenced. Please find enclosed copies of the relevant government orders, supporting documentation detailing the operational impact on our business, and our ERC calculations for your review.
+
+Attestation: “Under penalties of perjury, I declare that I submitted the protest and accompanying documents, and to the best of my personal knowledge and belief, the information stated herein is true, correct, and complete.”
+
+Sincerely,
+
+[Signature]
+
+Authorized Representative for WCM&G
+
+Enclosures:  
+• Copies of Relevant Government Orders and Excerpts  
+• ERC Calculations for Q3 2020  
+• Supporting Documentation and IRS Guidance References (including IRS Notices and Source URLs)

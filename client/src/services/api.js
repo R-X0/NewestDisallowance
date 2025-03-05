@@ -85,6 +85,57 @@ export const generateERCProtestLetter = async (letterData) => {
   }
 };
 
+// Generate an ERC substantiation document (Form 886-A)
+export const generateERCSubstantiation = async (substantiationData) => {
+  try {
+    console.log('Generating Form 886-A substantiation with data:', substantiationData);
+    
+    // Make sure we have the ChatGPT link
+    if (!substantiationData.chatGptLink) {
+      throw new Error('ChatGPT conversation link is required');
+    }
+    
+    // Make sure we have at least one claim period
+    if (!substantiationData.claimPeriods || substantiationData.claimPeriods.length === 0) {
+      throw new Error('At least one claim period is required');
+    }
+    
+    // Call the ChatGPT scraper endpoint, modified for substantiation
+    const response = await axios.post(
+      `${API_URL}/erc-protest/chatgpt/process-substantiation`,
+      substantiationData,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        // Increase timeout for the scraping process which may take time
+        timeout: 300000 // 5 minutes
+      }
+    );
+    
+    console.log('Successfully received response from ChatGPT scraper for substantiation');
+    return response.data;
+  } catch (error) {
+    console.error('Error in generateERCSubstantiation:', error);
+    
+    // Provide a more helpful error message
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Server responded with error:', error.response.data);
+      throw new Error(error.response.data.message || 'Server error occurred');
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received from server:', error.request);
+      throw new Error('No response received from server. The process might be taking longer than expected due to PDF generation. Try again or check with administrator.');
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error('Error setting up request:', error.message);
+      throw error;
+    }
+  }
+};
+
 export const getSubmissionStatus = async (trackingId) => {
   try {
     const response = await axios.get(`${API_URL}/erc-protest/status/${trackingId}`);

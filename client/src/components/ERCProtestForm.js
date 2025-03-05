@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import { FileUpload } from '@mui/icons-material';
 import COVIDPromptGenerator from './COVIDPromptGenerator';
-import ERCProtestLetterGenerator from './ERCProtestLetterGenerator';
+import ERCDocumentGenerator from './ERCDocumentGenerator';
 
 const ERCProtestForm = () => {
   // State for form data
@@ -138,7 +138,7 @@ const ERCProtestForm = () => {
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
       <Paper elevation={3} sx={{ p: 4 }}>
         <Typography variant="h4" gutterBottom>
-          ERC Disallowance Protest Generator
+          ERC Disallowance Document Generator
         </Typography>
         <Divider sx={{ mb: 3 }} />
         
@@ -320,15 +320,15 @@ const ERCProtestForm = () => {
               
               <Box sx={{ mb: 3, mt: 3 }}>
                 <Typography variant="h6" gutterBottom>
-                  Generate Protest Letter
+                  Generate ERC Documents
                 </Typography>
                 <Typography variant="body2" color="text.secondary" paragraph>
                   After completing your COVID orders research in ChatGPT, paste the ChatGPT conversation link below 
-                  to generate a formal protest letter that you can download and submit to the IRS.
+                  to generate a formal protest letter or Form 886-A substantiation document that you can download and submit to the IRS.
                 </Typography>
                 
-                {/* Add the Protest Letter Generator component */}
-                <ERCProtestLetterGenerator 
+                {/* Add the ERC Document Generator component */}
+                <ERCDocumentGenerator
                   formData={{
                     ...formData,
                     trackingId: submissionStatus?.data?.trackingId

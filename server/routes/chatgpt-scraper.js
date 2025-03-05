@@ -354,6 +354,70 @@ Create a comprehensive protest letter using the business information and COVID d
   }
 }
 
+/**
+ * Generate Form 886-A document using OpenAI
+ */
+async function generateForm886ADocument(businessInfo, covidData) {
+  try {
+    console.log('Generating Form 886-A document using GPT...');
+    
+    const response = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL || 'o3-mini',
+      messages: [
+        {
+          role: 'system',
+          content: `You are an expert in creating IRS Form 886-A substantiation documents for Employee Retention Credit (ERC) claims related to COVID-19. 
+          Create a comprehensive document that addresses all claim periods and follows the IRS workpaper format with sections for Issue, Facts, Law, Argument, and Conclusion.`
+        },
+        {
+          role: 'user',
+          content: `Please create a Form 886-A substantiation document for ERC claims using the following information:
+
+BUSINESS INFORMATION:
+Business Name: ${businessInfo.businessName}
+EIN: ${businessInfo.ein}
+Location: ${businessInfo.location}
+Business Website: ${businessInfo.businessWebsite || 'Not provided'}
+NAICS Code: ${businessInfo.naicsCode}
+Business Type: ${businessInfo.businessType || 'business'}
+Claim Periods: ${businessInfo.claimPeriods.join(', ')}
+Additional Context: ${businessInfo.additionalContext || 'No additional context provided'}
+
+COVID-19 RESEARCH DATA FROM CHATGPT:
+${covidData}
+
+FORMAT INSTRUCTIONS:
+Create a comprehensive Form 886-A substantiation document with the following sections:
+
+1. ISSUE: Start with a clear statement of the issue - whether the taxpayer qualifies for ERC under the full or partial suspension test.
+
+2. FACTS: Provide a detailed description of the business operations and a chronological timeline of relevant government orders for each claimed quarter. For each order, include:
+   - Order name and number
+   - Date enacted and date rescinded
+   - 2-3 sentence summary of the order
+   - How the order specifically affected the business operations
+
+3. LAW: Cite and explain relevant IRS Notices (2021-20, 2021-23, 2021-49) and other authorities that establish ERC eligibility criteria.
+
+4. ARGUMENT: Present a detailed analysis of how the business meets the eligibility criteria for each quarter claimed, connecting specific government orders to operational impacts.
+
+5. CONCLUSION: Provide a definitive statement that the taxpayer qualifies for ERC for the specified quarters.
+
+Use today's date: ${new Date().toLocaleDateString()}. Include citations and references to specific government orders throughout the document. Format in a professional IRS-style with appropriate headings and numbering.`
+        }
+      ],
+    });
+    
+    const generatedDocument = response.choices[0].message.content.trim();
+    console.log('Form 886-A document successfully generated');
+    
+    return generatedDocument;
+  } catch (error) {
+    console.error('Error generating Form 886-A document:', error);
+    throw new Error(`Failed to generate Form 886-A: ${error.message}`);
+  }
+}
+
 // Generate customized COVID prompt through OpenAI
 router.post('/generate-prompt', async (req, res) => {
     try {
@@ -409,9 +473,10 @@ router.post('/generate-prompt', async (req, res) => {
   });
 
 // ----------------------------------------------------------------------------
-// MAIN ROUTE
+// MAIN ROUTES
 // ----------------------------------------------------------------------------
 
+// Process ChatGPT conversation for Protest Letter
 router.post('/process-chatgpt', async (req, res) => {
   try {
     const {
@@ -676,6 +741,305 @@ Generated on: ${new Date().toISOString()}
         res.status(200).json({
           success: true,
           letter: updatedLetter,
+          conversationContent,
+          outputPath: outputDir,
+          pdfPath,
+          attachments,
+          zipPath,
+          packageFilename: path.basename(zipPath)
+        });
+      }
+    } catch (error) {
+      console.error('Error during processing:', error);
+      
+      // Close browser if it's open
+      if (browser) {
+        try { 
+          await browser.close();
+          console.log('Browser closed after error');
+        } catch (closeError) {
+          console.error('Error closing browser:', closeError);
+        }
+      }
+      
+      // Send error response
+      res.status(500).json({
+        success: false,
+        message: `Error processing ChatGPT conversation: ${error.message}`
+      });
+    }
+  } catch (outerError) {
+    console.error('Outer error in route handler:', outerError);
+    res.status(500).json({
+      success: false,
+      message: `Critical error in request processing: ${outerError.message}`
+    });
+  }
+});
+
+// Process ChatGPT conversation for Form 886-A Substantiation
+router.post('/process-substantiation', async (req, res) => {
+  try {
+    const {
+      chatGptLink,
+      businessName,
+      ein,
+      location,
+      businessWebsite,
+      businessType,
+      naicsCode,
+      claimPeriods,
+      additionalContext,
+      trackingId
+    } = req.body;
+
+    // Validate required inputs
+    if (!chatGptLink) {
+      return res.status(400).json({
+        success: false,
+        message: 'ChatGPT conversation link is required'
+      });
+    }
+    
+    if (!businessName || !ein || !claimPeriods || claimPeriods.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Business name, EIN, and at least one claim period are required'
+      });
+    }
+
+    console.log(`Processing ChatGPT link for Form 886-A: ${chatGptLink}`);
+    console.log(`Business: ${businessName}, Claim Periods: ${claimPeriods.join(', ')}, Type: ${businessType || 'Not specified'}`);
+
+    // Create unique directory for request
+    const requestId = uuidv4().substring(0, 8);
+    const outputDir = path.join(__dirname, `../../data/ChatGPT_Conversations/${requestId}`);
+    await fs.mkdir(outputDir, { recursive: true });
+
+    // Launch Puppeteer with robust error handling
+    let browser;
+    try {
+      browser = await puppeteer.launch({
+        headless: 'new',
+        args: [
+          '--no-sandbox', 
+          '--disable-setuid-sandbox', 
+          '--disable-dev-shm-usage',
+        ],
+      });
+
+      console.log('Browser launched');
+      const page = await browser.newPage();
+      
+      // Set longer timeouts for stability
+      await page.setDefaultNavigationTimeout(90000);
+      await page.setDefaultTimeout(60000);
+
+      // Block non-essential resources for faster loading
+      await page.setRequestInterception(true);
+      page.on('request', (request) => {
+        const resourceType = request.resourceType();
+        if (['image', 'font', 'media', 'stylesheet'].includes(resourceType)) {
+          request.abort();
+        } else {
+          request.continue();
+        }
+      });
+
+      // Navigate with robust error handling
+      console.log(`Navigating to: ${chatGptLink}`);
+      try {
+        await page.goto(chatGptLink, { 
+          waitUntil: 'networkidle2',
+          timeout: 60000 
+        });
+        console.log('Navigation complete (networkidle2)');
+      } catch (navError) {
+        console.error('Initial navigation error:', navError);
+        try {
+          console.log('Trying domcontentloaded instead');
+          await page.goto(chatGptLink, { 
+            waitUntil: 'domcontentloaded',
+            timeout: 60000 
+          });
+          console.log('Navigation complete (domcontentloaded)');
+        } catch (secondNavError) {
+          console.error('Second navigation error:', secondNavError);
+          console.log('Trying with basic load');
+          await page.goto(chatGptLink, { 
+            waitUntil: 'load',
+            timeout: 90000 
+          });
+          console.log('Basic navigation complete');
+        }
+      }
+
+      // Wait for content to load
+      await new Promise(resolve => setTimeout(resolve, 5000));
+
+      // 1) Grab the entire HTML
+      const rawHTML = await page.content();
+      console.log(`Raw HTML captured (${rawHTML.length} bytes)`);
+
+      // 2) Send the full HTML to GPT for sanitization
+      console.log('Sending to GPT for sanitization...');
+      const conversationContent = await sendToGPTForSanitization(rawHTML);
+      console.log(`Clean conversation length: ${conversationContent.length} chars`);
+
+      // Save sanitized conversation
+      await fs.writeFile(
+        path.join(outputDir, 'conversation.txt'),
+        conversationContent,
+        'utf8'
+      );
+
+      // Take screenshot for reference
+      try {
+        await page.screenshot({
+          path: path.join(outputDir, 'screenshot.png'),
+          fullPage: true
+        });
+        console.log('Screenshot captured');
+      } catch (screenshotError) {
+        console.error('Screenshot error:', screenshotError);
+      }
+
+      // Close browser
+      await browser.close();
+      console.log('Browser closed');
+
+      // 3) Create business info object
+      const businessInfo = {
+        businessName,
+        ein,
+        location,
+        businessWebsite,
+        naicsCode,
+        businessType: businessType || 'business',
+        claimPeriods,
+        additionalContext: additionalContext || ''
+      };
+
+      // 4) Generate Form 886-A document using GPT
+      console.log('Generating Form 886-A using GPT...');
+      const substantiationDocument = await generateForm886ADocument(
+        businessInfo,
+        conversationContent
+      );
+      
+      // Save the generated document in text format
+      await fs.writeFile(
+        path.join(outputDir, 'form_886a.txt'),
+        substantiationDocument,
+        'utf8'
+      );
+      
+      // 5) Process URLs in the document and download as PDFs
+      console.log('Extracting and downloading URLs from the document...');
+      const { letter: updatedDocument, attachments } = await extractAndDownloadUrls(
+        substantiationDocument, 
+        outputDir
+      );
+      
+      // Save the updated document with attachment references
+      await fs.writeFile(
+        path.join(outputDir, 'form_886a_with_attachments.txt'),
+        updatedDocument,
+        'utf8'
+      );
+      
+      // 6) Generate PDF version of the document
+      console.log('Generating PDF version of the Form 886-A...');
+      const pdfPath = path.join(outputDir, 'form_886a.pdf');
+      await generatePdf(updatedDocument, pdfPath);
+      
+      // 7) Create a complete package as a ZIP file
+      console.log('Creating complete substantiation package ZIP file...');
+      const zipPath = path.join(outputDir, 'complete_substantiation_package.zip');
+      const zip = new AdmZip();
+      
+      // Add the main document PDF
+      zip.addLocalFile(pdfPath);
+      
+      // Add all attachment PDFs
+      for (const attachment of attachments) {
+        zip.addLocalFile(attachment.path);
+      }
+      
+      // Add a README file explaining the package contents
+      const readmeContent = `ERC FORM 886-A SUBSTANTIATION PACKAGE
+
+Main Document:
+- form_886a.pdf (The Form 886-A substantiation document)
+
+Attachments:
+${attachments.map((a, i) => `${i+1}. ${a.filename} (original URL: ${a.originalUrl})`).join('\n')}
+
+Generated on: ${new Date().toISOString()}
+Claim Periods: ${claimPeriods.join(', ')}
+`;
+      
+      zip.addFile('README.txt', Buffer.from(readmeContent));
+      
+      // Write the ZIP file
+      zip.writeZip(zipPath);
+      console.log(`ZIP package created at: ${zipPath}`);
+
+      // Upload to Google Drive if tracking ID is provided
+      let driveUrls = null;
+      if (trackingId) {
+        try {
+          console.log(`Tracking ID provided: ${trackingId}, uploading to Google Drive...`);
+          
+          // Verify files exist before attempting upload
+          console.log(`File details for upload:`);
+          console.log(`- PDF Path: ${pdfPath} (exists: ${fsSync.existsSync(pdfPath)})`);
+          console.log(`- ZIP Path: ${zipPath} (exists: ${fsSync.existsSync(zipPath)})`);
+          
+          if (fsSync.existsSync(pdfPath) && fsSync.existsSync(zipPath)) {
+            // Get file sizes
+            const pdfStats = fsSync.statSync(pdfPath);
+            const zipStats = fsSync.statSync(zipPath);
+            console.log(`- PDF Size: ${pdfStats.size} bytes`);
+            console.log(`- ZIP Size: ${zipStats.size} bytes`);
+            
+            // Upload files to Drive
+            driveUrls = await uploadFilesToDriveAndUpdateTracking(
+              trackingId,
+              businessName,
+              pdfPath,
+              zipPath
+            );
+            
+            console.log(`Upload complete. Drive URLs:`, driveUrls);
+          } else {
+            throw new Error('One or more files do not exist for upload');
+          }
+        } catch (driveError) {
+          console.error('Error uploading to Google Drive:', driveError);
+          // Continue anyway, this shouldn't fail the whole request
+        }
+      }
+
+      // Include Drive URLs in the response if available
+      if (driveUrls) {
+        res.status(200).json({
+          success: true,
+          document: updatedDocument,
+          conversationContent,
+          outputPath: outputDir,
+          pdfPath,
+          attachments,
+          zipPath,
+          packageFilename: path.basename(zipPath),
+          googleDriveLink: driveUrls.folderLink,
+          protestLetterLink: driveUrls.protestLetterLink,
+          zipPackageLink: driveUrls.zipPackageLink
+        });
+      } else {
+        res.status(200).json({
+          success: true,
+          document: updatedDocument,
           conversationContent,
           outputPath: outputDir,
           pdfPath,
